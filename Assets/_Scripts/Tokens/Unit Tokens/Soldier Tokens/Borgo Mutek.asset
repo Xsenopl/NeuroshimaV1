@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
+  m_Name: Borgo Mutek
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 2747690628134850419, guid: 800b878db89ba1746ae593a3242d92e3, type: 3}
+  tokenName: Mutek
+  tokenType: 0
+  health: 1
+  initiative: 2
+  attackDirections: 00000000
+  abilities: 00000000

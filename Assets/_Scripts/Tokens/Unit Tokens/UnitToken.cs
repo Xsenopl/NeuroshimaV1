@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting.Antlr3.Runtime.Collections;
 using UnityEngine;
 
-public class UnitToken : Token
+public class UnitToken : TokenPoprzedni
 {
     private int _hp {  get; set; }
     private Dictionary<bool, string> _skillAvailable { get; set; }

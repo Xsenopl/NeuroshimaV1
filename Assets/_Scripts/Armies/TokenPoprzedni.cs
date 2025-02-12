@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Token : MonoBehaviour
+public abstract class TokenPoprzedni : MonoBehaviour
 {
     private int _id { get; set; }
     private string _name { get; set; }

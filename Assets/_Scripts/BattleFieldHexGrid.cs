@@ -42,10 +42,10 @@ public class BattleFieldHexGrid : MonoBehaviour
 
 					if (_AllTiles[i] == null)
 					{
-						Debug.Log($"Nie ma wartoœci { i++}  ----  (q: {q}, r: {r}, s: {s})");
+						//Debug.Log($"Nie ma wartoœci { i++}  ----  (q: {q}, r: {r}, s: {s})");
 
 					}
-					else { Debug.Log($"Dla (q: {q}, r: {r}, s: {s})" + _AllTiles[i++].ToString()); }
+					// else { Debug.Log($"Dla (q: {q}, r: {r}, s: {s})" + _AllTiles[i++].ToString()); }
 
                 }
             }

@@ -33,7 +33,7 @@ public class FocusedTile : MonoBehaviour
 
         if(cellPosition != _previousCellPosition )
         {
-            Debug.Log(cellPosition);
+            // Debug.Log(cellPosition);
             // Remove previous highlighted tile
             if ( _tilemap.HasTile(_previousCellPosition))
             {
