@@ -22,13 +22,4 @@ public class GameController : MonoBehaviour
         
     }
 
-    public void PlaceToken(GameObject tokenPrefab, Vector3 worldPosition)
-    {
-        GameObject tokenObject = Instantiate(tokenPrefab, worldPosition, Quaternion.identity);
-        Token token = tokenObject.GetComponent<Token>();
-        if (token != null)
-        {
-            boardManager.RegisterToken(token);
-        }
-    }
 }

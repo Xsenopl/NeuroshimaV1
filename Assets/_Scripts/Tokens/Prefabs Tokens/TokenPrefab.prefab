@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -2546247371642506995}
   m_Layer: 0
   m_Name: TokenPrefab
-  m_TagString: Untagged
+  m_TagString: Token
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -100,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationAreaPrefab: {fileID: 3872265226319069478, guid: c60e41fdb2397b147ae81fec06b8ba28, type: 3}
   tokenData: {fileID: 0}
+  hexCoords: {x: 0, y: 0}
 --- !u!58 &-2546247371642506995
 CircleCollider2D:
   m_ObjectHideFlags: 0

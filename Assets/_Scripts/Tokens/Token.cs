@@ -114,6 +114,7 @@ public class Token : MonoBehaviour
         }
     }
 
+    // Zapisuje ka¿dy s¹siaduj¹cy token do listy s¹siadów
     public void UpdateNeighbors(Dictionary<Vector2Int, Token> tokenGrid)
     {
         neighbors.Clear();

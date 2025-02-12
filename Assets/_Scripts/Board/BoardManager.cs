@@ -9,11 +9,9 @@ public class BoardManager : MonoBehaviour
 {
     public Tilemap tilemap;  // Tilemapa reprezentuj¹ca planszê
     public GameObject tokenPrefab;
-    //public TokenData selectedToken;
     public TokenSlotManager tokenManager;
     private Dictionary<Vector3Int, GameObject> occupiedTiles = new Dictionary<Vector3Int, GameObject>();  // Zajête heksy
     private Dictionary<Vector2Int, Token> tokenGrid = new Dictionary<Vector2Int, Token>();
-    public float hexSize = 1.0f; // Rozmiar pojedynczego heksa (nale¿y dopasowaæ do Tilemap)
 
     private void Start()
     {
@@ -41,14 +39,6 @@ public class BoardManager : MonoBehaviour
     {
         return tilemap.CellToWorld(hexPosition);
     }
-
-    public Vector2Int WorldToHexCoords(Vector3 worldPos)
-    {
-        float q = (2.0f / 3.0f * worldPos.x) / hexSize;
-        float r = (-1.0f / 3.0f * worldPos.x + Mathf.Sqrt(3) / 3.0f * worldPos.y) / hexSize;
-        return CubeRound(q, r);
-    }
-
 
     // Wybieranie heksu na podstawie pozycji œwiata
     public void SelectHex(Vector3 worldPosition)
@@ -107,27 +97,13 @@ public class BoardManager : MonoBehaviour
         return null;
     }
 
-    private Vector2Int CubeRound(float q, float r)
-    {
-        int rx = Mathf.RoundToInt(q);
-        int ry = Mathf.RoundToInt(r);
-        int rz = Mathf.RoundToInt(-q - r);
-
-        float xDiff = Mathf.Abs(rx - q);
-        float yDiff = Mathf.Abs(ry - r);
-        float zDiff = Mathf.Abs(rz - (-q - r));
-
-        if (xDiff > yDiff && xDiff > zDiff) rx = -ry - rz;
-        else if (yDiff > zDiff) ry = -rx - rz;
-
-        return new Vector2Int(rx, ry);
-    }
-
+    // Zapisuje tokeny do tokenGrid i nakazuje dla nich aktualizacjê ich s¹siadów 
     public void RegisterToken(Token token)//, Vector2Int hexCoords
     {
-        Vector2Int hexCoords = WorldToHexCoords(token.transform.position);
-        token.hexCoords = hexCoords;
-        tokenGrid[hexCoords] = token;
+        Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3Int hexCoords = WorldToHex(worldPosition);
+        token.hexCoords = (Vector2Int)hexCoords;
+        tokenGrid[(Vector2Int)hexCoords] = token;
         UpdateAllNeighbors();
     }
 
@@ -139,27 +115,3 @@ public class BoardManager : MonoBehaviour
         }
     }
 }
-
-
-
-
-
-// Wersja umieszczania, gdzie jescze nie ma wyboru tokenu
-/*
-public void PlaceToken(Vector3Int hexPosition)
-{
-    if (selectedToken == null)
-    {
-        Debug.Log("Brak wybranego ¿etonu.");
-        return;
-    }
-
-    Vector3 spawnPosition = HexToWorld(hexPosition);
-    GameObject newToken = Instantiate(tokenPrefab, spawnPosition, Quaternion.identity);
-    newToken.GetComponent<Token>().Initialize(selectedToken);
-
-    occupiedTiles.Add(hexPosition, newToken);  // Dodanie zajêtego pola do s³ownika
-
-    Debug.Log($"¯eton {selectedToken.tokenName} umieszczony na {hexPosition}");
-}
-*/
