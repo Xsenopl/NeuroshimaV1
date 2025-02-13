@@ -9,12 +9,29 @@ public class TokenData : ScriptableObject
     public string tokenName;
     public TokenType tokenType;
     public int health;
-    public int initiative;
-    public AttackDirection[] attackDirections;
-    public SpecialAbility[] abilities;
+    public List<int> initiatives;
+    public List<DirectionalEffects> attackEffects; // Lista efektów ataku i umiejêtnoœci wed³ug kierunku
 }
 
 public enum TokenType { Unit, Module, Headquarter, Action }
-public enum AttackDirection { Up, Down, Left, Right, UpLeft, UpRight, DownLeft, DownRight }
+public enum AttackDirection { Up, UpRight, DownRight, Down, DownLeft, UpLeft }
 public enum SpecialAbility { Armor, Net, Sniper, Push, Moving }
+
+// Struktura przechowuj¹ca informacje o efektach w danym kierunku
+[System.Serializable]
+public struct TokenEffect
+{
+    public SpecialAbility[] abilities; // Lista zdolnoœci specjalnych
+    public int attackPower; // Si³a ataku (0 to brak ataku)
+    public bool isRanged; // Czy jest to atak dystansowy?
+    public int range; // Zasiêg ataku (1 dal wrêcz, X dla dystansowego)
+}
+
+// Struktura przechowuj¹ca efekty dla danego kierunku
+[System.Serializable]
+public struct DirectionalEffects
+{
+    public AttackDirection direction; // Kierunek ataku
+    public List<TokenEffect> effects; // Lista efektów w danym kierunku
+}
 

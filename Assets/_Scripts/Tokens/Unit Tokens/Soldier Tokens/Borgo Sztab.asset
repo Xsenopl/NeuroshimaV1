@@ -16,6 +16,41 @@ MonoBehaviour:
   tokenName: Sztab Borgo
   tokenType: 2
   health: 20
-  initiative: 0
-  attackDirections: 000000000100000004000000050000000600000007000000
-  abilities: 
+  initiatives: 00000000
+  attackEffects:
+  - direction: 0
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 1
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 2
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 3
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 4
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 5
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1

@@ -16,6 +16,41 @@ MonoBehaviour:
   tokenName: Sztab Posterunek
   tokenType: 2
   health: 20
-  initiative: 0
-  attackDirections: 00000000020000000300000000000000
-  abilities: 
+  initiatives: 01000000
+  attackEffects:
+  - direction: 0
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 1
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 2
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 3
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 4
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1
+  - direction: 5
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+      range: 1

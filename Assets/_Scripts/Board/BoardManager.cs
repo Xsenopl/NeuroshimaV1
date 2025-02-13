@@ -11,7 +11,7 @@ public class BoardManager : MonoBehaviour
     public GameObject tokenPrefab;
     public TokenSlotManager tokenManager;
     private Dictionary<Vector3Int, GameObject> occupiedTiles = new Dictionary<Vector3Int, GameObject>();  // Zajête heksy
-    private Dictionary<Vector2Int, Token> tokenGrid = new Dictionary<Vector2Int, Token>();
+    public Dictionary<Vector2Int, Token> tokenGrid = new Dictionary<Vector2Int, Token>();
 
     private void Start()
     {
@@ -84,6 +84,24 @@ public class BoardManager : MonoBehaviour
         Debug.Log($"¯eton {tokenData.tokenName} umieszczony na {hexPosition}");
     }
 
+    public void RemoveToken(Token token)
+    {
+        if (token == null) return;
+
+        // Sprawdzenie, czy ¿eton nadal istnieje w `tokenGrid`
+        if (tokenGrid.ContainsKey(token.hexCoords))
+        {
+            tokenGrid.Remove(token.hexCoords); // Usuniêcie z mapy tokenów
+            occupiedTiles.Remove((Vector3Int)token.hexCoords);
+        }
+
+        // Zniszczenie obiektu w œwiecie gry
+        if (token.gameObject != null)
+        {
+            Destroy(token.gameObject);
+        }
+    }
+
     private Image FindSlotByToken(TokenData token)
     {
         foreach (var slot in tokenManager.player1Slots)
@@ -114,4 +132,35 @@ public class BoardManager : MonoBehaviour
             token.UpdateNeighbors(tokenGrid);
         }
     }
+
+    public Vector2Int GetHexDirection(Vector2Int hexCoords, AttackDirection direction)
+    {
+        bool isEvenColumn = hexCoords.y % 2 == 0;
+
+        switch (direction)
+        {
+            case AttackDirection.Up: return new Vector2Int(1, 0);
+            case AttackDirection.Down: return new Vector2Int(-1, 0);
+            case AttackDirection.UpLeft: return isEvenColumn ? new Vector2Int(0, -1) : new Vector2Int(1, -1);
+            case AttackDirection.UpRight: return isEvenColumn ? new Vector2Int(0, 1) : new Vector2Int(1, 1);
+            case AttackDirection.DownLeft: return isEvenColumn ? new Vector2Int(-1, -1) : new Vector2Int(0, -1);
+            case AttackDirection.DownRight: return isEvenColumn ? new Vector2Int(-1, 1) : new Vector2Int(0, 1);
+            default: return Vector2Int.zero;
+        }
+    }
 }
+
+/* Po wierszach
+        bool isEvenColumn = hexCoords.x % 2 == 0;
+
+        switch (direction)
+        {
+            case AttackDirection.Up: return new Vector2Int(1, 0);
+            case AttackDirection.Down: return new Vector2Int(-1, 0);
+            case AttackDirection.UpLeft: return isEvenColumn ? new Vector2Int(-1, -1) : new Vector2Int(0, -1);
+            case AttackDirection.UpRight: return isEvenColumn ? new Vector2Int(-1, 1) : new Vector2Int(0, 1);
+            case AttackDirection.DownLeft: return isEvenColumn ? new Vector2Int(0, -1) : new Vector2Int(1, -1);
+            case AttackDirection.DownRight: return isEvenColumn ? new Vector2Int(0, 1) : new Vector2Int(1, 1);
+            default: return Vector2Int.zero;
+        }
+*/

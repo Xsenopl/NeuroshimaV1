@@ -4,27 +4,27 @@ using UnityEngine;
 
 public class RotationArea : MonoBehaviour
 {
-    private Token token;
+    private Token _token;
 
     public void SetToken(Token assignedToken)
     {
-        token = assignedToken;
+        _token = assignedToken;
     }
 
     void OnMouseDown()
     {
-        if (token != null)
+        if (_token != null)
         {
-            token.StartRotation(Input.mousePosition);
+            _token.StartRotation(Input.mousePosition);
             Debug.Log("Klikniêto pole do obracania.");
         }
     }
 
     void OnMouseUp()
     {
-        if (token != null)
+        if (_token != null)
         {
-            token.StopRotation();
+            _token.StopRotation();
             Debug.Log("Przestano obracaæ ¿eton.");
         }
     }

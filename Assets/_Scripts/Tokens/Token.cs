@@ -1,10 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class Token : MonoBehaviour
 {
+    public int currentHealth;
+    public List<int> currentInitiatives;
+
     private bool isBeingRotated = false;
     private bool isPlaced = false;
     private Vector3 initialMousePosition;
@@ -47,6 +52,8 @@ public class Token : MonoBehaviour
     {
         tokenData = data;
         spriteRenderer.sprite = data.sprite;  // Za³adowanie grafiki z ScriptableObject
+        currentHealth = data.health; // Kopiowanie zdrowia
+        currentInitiatives = new List<int>(data.initiatives); // Kopiowanie inicjatyw
     }
 
     void Update()
@@ -100,6 +107,33 @@ public class Token : MonoBehaviour
         currentRotation = angle;
     }
 
+    public AttackDirection GetRotatedDirection(AttackDirection baseDirection)
+    {
+        // Kolejnoœæ kierunków zgodnie z ruchem wskazówek zegara w uk³adzie Flat-Top
+        AttackDirection[] directions = {
+        AttackDirection.Up,
+        AttackDirection.UpLeft,
+        AttackDirection.DownLeft,
+        AttackDirection.Down,
+        AttackDirection.DownRight,
+        AttackDirection.UpRight
+    };
+
+        // Obliczamy przesuniêcie w indeksach tablicy
+        int shift = Mathf.RoundToInt(currentRotation / 60f) % 6;
+        if (shift < 0) shift += 6; // Obs³uga negatywnych k¹tów
+
+        // Znajdujemy indeks bazowego kierunku
+        int baseIndex = Array.IndexOf(directions, baseDirection);
+        if (baseIndex == -1) return baseDirection; // Jeœli kierunku nie znaleziono, zwróæ bazowy
+
+        // Nowy indeks po obrocie
+        int newIndex = (baseIndex + shift) % 6;
+
+        Debug.Log($"Kierunek: {directions[newIndex]}");
+        return directions[newIndex];
+    }
+
     void OnMouseDown()
     {
         if (isPlaced)
@@ -131,6 +165,15 @@ public class Token : MonoBehaviour
         }
 
         Debug.Log($"¯eton na {hexCoords} ma {neighbors.Count} s¹siadów.");
+    }
+
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        if (currentHealth <= 0)
+        {
+            // Debug.Log($"{tokenData.tokenName} ma 0  hp.");
+        }
     }
 
     //private void OnDrawGizmos()
