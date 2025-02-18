@@ -12,15 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
   m_Name: Borgo Nozownik
   m_EditorClassIdentifier: 
+  army: Borgo
   sprite: {fileID: 2747690628134850419, guid: 11afbb7fd2d7673419ed7058a8ac6f31, type: 3}
   tokenName: "No\u017Cownik"
   tokenType: 0
   health: 2
   initiatives: 03000000
   attackEffects:
-  - direction: 0
+  - direction: 5
     effects:
     - abilities: 
-      attackPower: 0
+      attackPower: 1
       isRanged: 0
-      range: 1
+  - direction: 4
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0

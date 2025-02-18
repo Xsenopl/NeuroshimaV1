@@ -17,8 +17,6 @@ public class TokenSlotManager : MonoBehaviour
 
     private int currentPlayer = 2; // 1 - Gracz 1, 2 - Gracz 2
     private TokenData selectedToken = null; // Aktualnie wybrany ¿eton
-    private bool player1HasHeadquarter = false;
-    private bool player2HasHeadquarter = false;
 
     private void Start()
     {

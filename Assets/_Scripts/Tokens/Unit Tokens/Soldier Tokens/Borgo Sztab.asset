@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
   m_Name: Borgo Sztab
   m_EditorClassIdentifier: 
+  army: Borgo
   sprite: {fileID: 2747690628134850419, guid: 2d0289b65ca7f7b49b9c7207c305e898, type: 3}
   tokenName: Sztab Borgo
   tokenType: 2
@@ -23,34 +24,28 @@ MonoBehaviour:
     - abilities: 
       attackPower: 1
       isRanged: 0
-      range: 1
   - direction: 1
     effects:
     - abilities: 
       attackPower: 1
       isRanged: 0
-      range: 1
   - direction: 2
     effects:
     - abilities: 
       attackPower: 1
       isRanged: 0
-      range: 1
   - direction: 3
     effects:
     - abilities: 
       attackPower: 1
       isRanged: 0
-      range: 1
   - direction: 4
     effects:
     - abilities: 
       attackPower: 1
       isRanged: 0
-      range: 1
   - direction: 5
     effects:
     - abilities: 
       attackPower: 1
       isRanged: 0
-      range: 1

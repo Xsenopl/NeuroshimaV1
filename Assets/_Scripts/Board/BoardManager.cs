@@ -13,6 +13,7 @@ public class BoardManager : MonoBehaviour
     private Dictionary<Vector3Int, GameObject> occupiedTiles = new Dictionary<Vector3Int, GameObject>();  // Zajête heksy
     public Dictionary<Vector2Int, Token> tokenGrid = new Dictionary<Vector2Int, Token>();
 
+
     private void Start()
     {
         // Debug.Log("Plansza za³adowana. Gotowa do umieszczania ¿etonów.");
@@ -148,19 +149,10 @@ public class BoardManager : MonoBehaviour
             default: return Vector2Int.zero;
         }
     }
+
+    public bool IsValidPosition(Vector2Int pos)
+    {
+        Vector3Int tilePos = new Vector3Int(pos.x, pos.y, 0);
+        return tilemap.HasTile(tilePos); // Sprawdza, czy na tilemapie istnieje kafelek na tej pozycji
+    }
 }
-
-/* Po wierszach
-        bool isEvenColumn = hexCoords.x % 2 == 0;
-
-        switch (direction)
-        {
-            case AttackDirection.Up: return new Vector2Int(1, 0);
-            case AttackDirection.Down: return new Vector2Int(-1, 0);
-            case AttackDirection.UpLeft: return isEvenColumn ? new Vector2Int(-1, -1) : new Vector2Int(0, -1);
-            case AttackDirection.UpRight: return isEvenColumn ? new Vector2Int(-1, 1) : new Vector2Int(0, 1);
-            case AttackDirection.DownLeft: return isEvenColumn ? new Vector2Int(0, -1) : new Vector2Int(1, -1);
-            case AttackDirection.DownRight: return isEvenColumn ? new Vector2Int(0, 1) : new Vector2Int(1, 1);
-            default: return Vector2Int.zero;
-        }
-*/

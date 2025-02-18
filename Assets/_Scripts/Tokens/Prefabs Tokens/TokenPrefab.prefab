@@ -98,6 +98,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 470a9fb270f739c429e703fc73bcdbb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentHealth: 0
+  currentInitiatives: 
   rotationAreaPrefab: {fileID: 3872265226319069478, guid: c60e41fdb2397b147ae81fec06b8ba28, type: 3}
   tokenData: {fileID: 0}
   hexCoords: {x: 0, y: 0}

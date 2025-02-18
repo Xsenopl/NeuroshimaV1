@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
   m_Name: Outpost Silacz
   m_EditorClassIdentifier: 
+  army: Outpost
   sprite: {fileID: 2747690628134850419, guid: 04548e54d91054b4694c893d7285bb82, type: 3}
   tokenName: "Si\u0142acz"
   tokenType: 0
@@ -21,6 +22,5 @@ MonoBehaviour:
   - direction: 0
     effects:
     - abilities: 
-      attackPower: 0
+      attackPower: 1
       isRanged: 0
-      range: 1

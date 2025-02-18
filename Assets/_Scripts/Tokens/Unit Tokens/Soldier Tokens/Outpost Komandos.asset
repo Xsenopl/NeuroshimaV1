@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
   m_Name: Outpost Komandos
   m_EditorClassIdentifier: 
+  army: Outpost
   sprite: {fileID: 2747690628134850419, guid: 711318e31774e3342bed678932d5a65b, type: 3}
   tokenName: Komandos
   tokenType: 0
@@ -21,6 +22,5 @@ MonoBehaviour:
   - direction: 0
     effects:
     - abilities: 
-      attackPower: 0
-      isRanged: 0
-      range: 1
+      attackPower: 1
+      isRanged: 1

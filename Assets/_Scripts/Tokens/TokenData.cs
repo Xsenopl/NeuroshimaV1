@@ -5,6 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewToken", menuName = "NeuroshimaHex/Token")]
 public class TokenData : ScriptableObject
 {
+    public string army;
     public Sprite sprite;
     public string tokenName;
     public TokenType tokenType;
@@ -24,7 +25,7 @@ public struct TokenEffect
     public SpecialAbility[] abilities; // Lista zdolnoœci specjalnych
     public int attackPower; // Si³a ataku (0 to brak ataku)
     public bool isRanged; // Czy jest to atak dystansowy?
-    public int range; // Zasiêg ataku (1 dal wrêcz, X dla dystansowego)
+    //public int range; // Zasiêg ataku (1 dal wrêcz, X dla dystansowego)
 }
 
 // Struktura przechowuj¹ca efekty dla danego kierunku

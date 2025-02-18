@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
+//using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class Token : MonoBehaviour
 {
@@ -16,11 +15,12 @@ public class Token : MonoBehaviour
     private float currentRotation = 0f;
     public GameObject rotationAreaPrefab;
     private GameObject rotationArea;
+    private CircleCollider2D circleCollider;
 
     public TokenData tokenData;
     private SpriteRenderer spriteRenderer;
 
-    public Vector2Int hexCoords; // Wspó³rzêdne w uk³adzie heksagonalnym
+    public Vector2Int hexCoords; // Wspó³rzêdne ¿etonu w uk³adzie heksagonalnym
     private List<Token> neighbors = new List<Token>();
 
     private static readonly Vector2Int[] evenRowOffsets = {
@@ -36,6 +36,8 @@ public class Token : MonoBehaviour
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        circleCollider = GetComponent<CircleCollider2D>();
     }
 
     private void Start()
@@ -45,6 +47,7 @@ public class Token : MonoBehaviour
         if (boardManager != null)
         {
             boardManager.RegisterToken(this);
+            circleCollider = GetComponent<CircleCollider2D>();
         }
     }
 
@@ -52,15 +55,53 @@ public class Token : MonoBehaviour
     {
         tokenData = data;
         spriteRenderer.sprite = data.sprite;  // Za³adowanie grafiki z ScriptableObject
-        currentHealth = data.health; // Kopiowanie zdrowia
-        currentInitiatives = new List<int>(data.initiatives); // Kopiowanie inicjatyw
+        currentHealth = data.health;
+        currentInitiatives = new List<int>(data.initiatives);
     }
 
     void Update()
     {
-        if (isBeingRotated)
+        // Rotowanie ¿etonem globalne
+        // Sprawdzenie, czy klikniêcie by³o wewn¹trz Circle Collidera
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorldPosition.z = 0;
+
+        if (Input.GetMouseButtonDown(0)) // Klikniêcie myszk¹
         {
-            RotateTokenWithMouse();
+            if (circleCollider.OverlapPoint(mouseWorldPosition))
+            {
+                // Klikniêto w œrodek ¿etonu -> zatwierdzamy
+                if (!isPlaced)
+                {
+                    isPlaced = true;
+                    Destroy(rotationArea);
+                    Debug.Log("¯eton umieszczony.");
+                }
+            }
+            else
+            {
+                // Klikniêto poza Colliderem -> rozpocznij obracanie
+                if (!isPlaced)
+                {
+                    isBeingRotated = true;
+                    initialMousePosition = mouseWorldPosition; // Zapamiêtujemy pocz¹tkow¹ pozycjê myszy
+                }
+            }
+        }
+        if (Input.GetMouseButtonUp(0)) // Puszczenie przycisku myszy
+        {
+            if (isBeingRotated)
+            {
+                StopRotation();
+                isBeingRotated = false; // Koniec obracania
+            }
+        }
+
+
+        if (isBeingRotated && !isPlaced)
+        {
+            //RotateTokenWithMouse();
+            RotateTokenWithMouse2();
         }
     }
 
@@ -71,45 +112,114 @@ public class Token : MonoBehaviour
             rotationArea = Instantiate(rotationAreaPrefab, transform.position, Quaternion.identity);
             rotationArea.transform.SetParent(transform);
             rotationArea.GetComponent<RotationArea>().SetToken(this);
-            Debug.Log("Pole do obracania utworzone.");
+        }
+    }
+
+
+
+    // Próby rotowania globalnego
+    void RotateTokenWithMouse2()
+    {
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorldPosition.z = 0;
+
+        // Oblicz k¹t miêdzy myszk¹ a œrodkiem ¿etonu
+        Vector3 direction = mouseWorldPosition - transform.position;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        // Obrót ¿etonu
+        transform.rotation = Quaternion.Euler(0, 0, angle);
+        currentRotation = angle;
+    }
+    void OnMouseDown()
+    {
+        if (isPlaced)
+        {
+            Debug.Log("¯eton ju¿ zatwierdzony.");
+            return;
+        }
+    }
+
+    void OnMouseUp()
+    {
+        if (isBeingRotated && !isPlaced)
+        {
+            isBeingRotated = false;
+            StopRotation();
         }
     }
 
     public void StartRotation(Vector3 mousePosition)
     {
-        if (!isPlaced)
-        {
-            isBeingRotated = true;
-            initialMousePosition = mousePosition;
-            Debug.Log("Rozpoczêto obracanie ¿etonu.");
-        }
+        initialMousePosition = mousePosition;
+        isBeingRotated = true;
+        Debug.Log("Rozpoczêto obracanie ¿etonu.");
     }
 
     public void StopRotation()
     {
-        isBeingRotated = false;
-
-        // Zaokr¹glenie k¹ta obrotu do najbli¿szej wielokrotnoœci 60 stopni
+        // Zaokr¹glenie k¹ta do najbli¿szych 60 stopni
         float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f;
-
-        // Ustawienie obrotu na zaokr¹glony k¹t
         transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
         currentRotation = roundedAngle;
 
-        Debug.Log($"Obracanie zatrzymane. Aktualny k¹t: {currentRotation}");
+        Debug.Log($"Obracanie zatrzymane. K¹t: {currentRotation}");
+    }
+
+
+    public void StartRotationPREW(Vector3 mousePosition)
+    {
+        if (!isPlaced)
+        {
+            isBeingRotated = true;
+            initialMousePosition = mousePosition;
+        }
+    }
+
+    public void StopRotationPREW()
+    {
+        //isBeingRotated = false;
+
+        //// Zaokr¹glenie k¹ta obrotu do najbli¿szej wielokrotnoœci 60 stopni
+        //float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f;
+
+        //// Ustawienie obrotu na zaokr¹glony k¹t
+        //transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
+        //currentRotation = roundedAngle;
+
+        //Debug.Log($"Obracanie zatrzymane. Aktualny k¹t: {currentRotation}");
+
+        isBeingRotated = false;
+        currentRotation = transform.rotation.eulerAngles.z; // Zapamiêtanie aktualnego k¹ta
+        float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f; // Zaokr¹glenie do 60 stopni
+        transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
+
+        Debug.Log($"Obracanie zatrzymane. Zaokr¹glony k¹t: {roundedAngle}");
     }
 
     void RotateTokenWithMouse()
     {
-        Vector3 mouseDelta = Input.mousePosition - initialMousePosition;
-        float angle = Mathf.Atan2(mouseDelta.y, mouseDelta.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-        currentRotation = angle;
+        //Vector3 mouseDelta = Input.mousePosition - initialMousePosition;
+        //float angle = Mathf.Atan2(mouseDelta.y, mouseDelta.x) * Mathf.Rad2Deg;
+        //transform.rotation = Quaternion.Euler(0, 0, angle);
+        //currentRotation = angle;
+
+        Vector3 currentMousePosition = Input.mousePosition;
+
+        // Obliczenie k¹ta pocz¹tkowego i aktualnego wzglêdem pozycji ¿etonu
+        Vector3 tokenScreenPosition = Camera.main.WorldToScreenPoint(transform.position);
+        float initialAngle = Mathf.Atan2(initialMousePosition.y - tokenScreenPosition.y, initialMousePosition.x - tokenScreenPosition.x) * Mathf.Rad2Deg;
+        float currentAngle = Mathf.Atan2(currentMousePosition.y - tokenScreenPosition.y, currentMousePosition.x - tokenScreenPosition.x) * Mathf.Rad2Deg;
+
+        // Obliczenie ró¿nicy k¹ta
+        float angleDelta = Mathf.DeltaAngle(initialAngle, currentAngle);
+
+        // Aktualizacja k¹ta
+        transform.rotation = Quaternion.Euler(0, 0, currentRotation + angleDelta);
     }
 
     public AttackDirection GetRotatedDirection(AttackDirection baseDirection)
     {
-        // Kolejnoœæ kierunków zgodnie z ruchem wskazówek zegara w uk³adzie Flat-Top
         AttackDirection[] directions = {
         AttackDirection.Up,
         AttackDirection.UpLeft,
@@ -130,21 +240,29 @@ public class Token : MonoBehaviour
         // Nowy indeks po obrocie
         int newIndex = (baseIndex + shift) % 6;
 
-        Debug.Log($"Kierunek: {directions[newIndex]}");
+        //Debug.Log($"Kierunek: {directions[newIndex]}");
         return directions[newIndex];
     }
 
-    void OnMouseDown()
+    void OnMouseDownPREV()
     {
-        if (isPlaced)
+        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+        if (hit.collider != null && hit.collider.gameObject == gameObject)
         {
+            //if (isPlaced)
+            //{
+            //    Debug.Log("¯eton zatwierdzony.");
+            //    Destroy(rotationArea);  // Usuniêcie pola do obracania
+            //}
+            //else
+            //{
+            //    isPlaced = true;
+            //    Debug.Log("¯eton gotowy do zatwierdzenia. Kliknij ponownie, aby umieœciæ go na sta³e.");
+            //}
+            this.isPlaced = true;
             Debug.Log("¯eton zatwierdzony.");
             Destroy(rotationArea);  // Usuniêcie pola do obracania
-        }
-        else
-        {
-            isPlaced = true;
-            Debug.Log("¯eton gotowy do zatwierdzenia. Kliknij ponownie, aby umieœciæ go na sta³e.");
         }
     }
 

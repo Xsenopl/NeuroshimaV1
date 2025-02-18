@@ -12,15 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
   m_Name: Borgo Mutek
   m_EditorClassIdentifier: 
+  army: Borgo
   sprite: {fileID: 2747690628134850419, guid: 800b878db89ba1746ae593a3242d92e3, type: 3}
   tokenName: Mutek
   tokenType: 0
   health: 2
   initiatives: 02000000
-  attackEffects:
-  - direction: 0
-    effects:
-    - abilities: 
-      attackPower: 0
-      isRanged: 0
-      range: 1
+  attackEffects: []
