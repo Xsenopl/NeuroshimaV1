@@ -6,20 +6,28 @@ using System.Linq;
 
 public class TokenSlotManager : MonoBehaviour
 {
+    public BoardManager boardManager;
     public List<Image> player1Slots;  // Sloty UI dla Gracza 1
     public List<Image> player2Slots;  // Sloty UI dla Gracza 2
     public Button endTurnButton;      // Przycisk "Koniec tury"
+    public Button undoButton;         // Przycisk "cofnij"
+    public GameObject discardConfirmationImage; // Obrazek potwierdzaj¹cy odrzucenie
 
     public TokenDatabase player1Database;
     public TokenDatabase player2Database;
     private List<TokenData> player1Pool = new List<TokenData>(); // ¯etony Gracza 1
     private List<TokenData> player2Pool = new List<TokenData>(); // ¯etony Gracza 2
 
-    private int currentPlayer = 2; // 1 - Gracz 1, 2 - Gracz 2
-    private TokenData selectedToken = null; // Aktualnie wybrany ¿eton
+    private Slot selectedSlot; // Wybrany slot (dla mechaniki odrzucania)
+    private TokenData selectedToken = null; // Aktualnie wybrany ¿eton 
 
     private void Start()
     {
+        boardManager = FindObjectOfType<BoardManager>();
+        //trashButton.gameObject.SetActive(false);
+        //trashButton.onClick.AddListener(TrashSelectedToken);
+
+        undoButton.onClick.AddListener(() => boardManager.UndoLastAction());
         endTurnButton.onClick.AddListener(EndTurn);  // Przypisanie przycisku do metody
         InitializePools(); // Rozdzielamy ¿etony na graczy
         ClearSlots();
@@ -55,6 +63,21 @@ public class TokenSlotManager : MonoBehaviour
         }
     }
 
+    public List<TokenData> GetPlayer1Pool() { return new List<TokenData>(player1Pool); }
+    public List<TokenData> GetPlayer2Pool() { return new List<TokenData>(player2Pool); }
+    public bool HasTokensLeftToDiscard()
+    {
+        List<Image> slots = (boardManager.CurrentPlayer == 1) ? player1Slots : player2Slots;
+        return slots.Any(s => s.sprite != null);
+    }
+    public bool HasThreeTokens()
+    {
+        List<Image> slots = (boardManager.CurrentPlayer == 1) ? player1Slots : player2Slots;
+        int tokensInSlots = slots.Count(s => s.sprite != null);
+        return tokensInSlots >= 3;
+    }
+
+
     // Czyœci sloty do domyœlnego wygl¹du
     public void ClearSlots()
     {
@@ -63,14 +86,20 @@ public class TokenSlotManager : MonoBehaviour
     }
 
     // Losowanie ¿etonów dla danego gracza
-    private void DrawTokens()
+    public void DrawTokens()
     {
-        List<TokenData> pool = (currentPlayer == 1) ? player1Pool : player2Pool;
-        List<Image> slots = (currentPlayer == 1) ? player1Slots : player2Slots;
+        if (HasThreeTokens())
+        {
+            Debug.LogWarning("Najpierw odrzuæ ¿eton!");
+            return;
+        }
+
+        List<TokenData> pool = (boardManager.CurrentPlayer == 1) ? player1Pool : player2Pool;
+        List<Image> slots = (boardManager.CurrentPlayer == 1) ? player1Slots : player2Slots;
 
         if (pool.Count == 0)
         {
-            Debug.Log($"Gracz {currentPlayer} nie ma wiêcej ¿etonów!");
+            Debug.Log($"Gracz {boardManager.CurrentPlayer} nie ma wiêcej ¿etonów!");
             return;
         }
 
@@ -79,7 +108,7 @@ public class TokenSlotManager : MonoBehaviour
 
         if (tokensToDraw == 0)
         {
-            Debug.Log($"Gracz {currentPlayer} ma ju¿ komplet ¿etonów!");
+            Debug.Log($"Gracz {boardManager.CurrentPlayer} ma ju¿ komplet ¿etonów!");
             return;
         }
 
@@ -101,7 +130,7 @@ public class TokenSlotManager : MonoBehaviour
             tokensToDraw--;
         }
 
-        Debug.Log($"Gracz {currentPlayer} wylosowa³ {emptySlots} nowe ¿etony!");
+        Debug.Log($"Gracz {boardManager.CurrentPlayer} wylosowa³ {emptySlots} nowe ¿etony!");
     }
 
     private void DrawHeadquarter(int player)
@@ -145,8 +174,9 @@ public class TokenSlotManager : MonoBehaviour
     // Obs³uga koñca tury
     public void EndTurn()
     {
-        Debug.Log($"Tura Gracza {currentPlayer} zakoñczona.");
-        currentPlayer = (currentPlayer == 1) ? 2 : 1;  // Zmiana gracza
+        if (HasThreeTokens()) { Debug.Log("Musisz najpierw odrzuciæ jakiœ ¿eton"); return; }
+
+        boardManager.ChangeCurrentPlayer();
         DrawTokens();  // Losowanie nowych ¿etonów
     }
 
@@ -173,6 +203,64 @@ public class TokenSlotManager : MonoBehaviour
         }
         return selectedToken;
     }
+    public TokenData GetTokenDataByName(string tokenName)
+    {
+        List<TokenData> allTokens = new List<TokenData>();
+        if (player1Database != null) allTokens.AddRange(player1Database.allTokens);
+        if (player2Database != null) allTokens.AddRange(player2Database.allTokens);
+
+        return allTokens.Find(t => t.tokenName == tokenName);
+    }
+
+//____________PRACE NAD ODRZUCANIEM ¯ETONÓW__________________
+
+    // Odrzucenie ¿etonu z rêki i dodanie na cmentarz
+    public void DiscardToken(TokenData token, Slot slot)
+    {
+        int ownerPlayer = boardManager.GetTokenOwner(token.army);
+
+        Debug.Log($"Gracz {ownerPlayer} odrzuci³ ¿eton: {token.tokenName}.");
+
+        FindObjectOfType<StatsManager>().AddToGraveyard(token, ownerPlayer);
+
+        slot.ClearSlot();
+    }
+
+    public void ConfirmDiscard()
+    {
+        if (selectedSlot == null || selectedSlot.assignedToken == null)
+        {
+            Debug.LogWarning("Brak wybranego ¿etonu do odrzucenia!");
+            return;
+        }
+
+        TokenData tokenToDiscard = selectedSlot.assignedToken;
+        DiscardToken(tokenToDiscard, selectedSlot);
+
+        discardConfirmationImage.SetActive(false); // Ukryj obrazek, jeœli odrzucanie nie jest wymagane
+        selectedSlot = null;
+        selectedToken = null;
+    }
+
+    public void ShowDiscardConfirmation(Slot slot)
+    {
+        if (discardConfirmationImage == null)
+        {
+            Debug.LogError("TrashSlotImage nie jest przypisany!");
+            return;
+        }
+
+        if (!HasTokensLeftToDiscard())
+        {
+            Debug.Log("Nie ma ¿etonów na rêce");
+            return;
+        }
+
+        discardConfirmationImage.SetActive(true);
+        selectedSlot = slot;
+
+        Debug.Log($"Klikniêto ¿eton: {slot.assignedToken.tokenName}. Teraz mo¿na go odrzuciæ.");
+    }
 
     public void RemoveTokenFromSlot(Image slot)
     {
@@ -184,77 +272,46 @@ public class TokenSlotManager : MonoBehaviour
     {
         selectedToken = null;
     }
-
 }
 
-
-
-// Inicjalizacja puli ¿etonów z TokenDatabase - stan sprzed pracy nad "Wybierz sztab jako pierwszy"
-/*
-private void InitializePools()
-{
-    if (player1Database != null)
-        player1Pool = new List<TokenData>(player1Database.allTokens);
-    else
-        Debug.LogError("Brak przypisanego TokenDatabase dla Gracza 1!");
-
-    if (player2Database != null)
-        player2Pool = new List<TokenData>(player2Database.allTokens);
-    else
-        Debug.LogError("Brak przypisanego TokenDatabase dla Gracza 2!");
-}
-*/
-
-
-// Losowanie ¿etonów dla danego gracza  - stan sprzed pracy nad "Wybierz sztab jako pierwszy"
-/*
-    private void DrawTokens()
+/* Pierwsza próba stworzenia cmentarza i cofniêcia akcji z niego
+    public TokenData GetTokenDataByName(string tokenName, int player)
     {
-        List<TokenData> pool = (currentPlayer == 1) ? player1Pool : player2Pool;
-        List<Image> slots = (currentPlayer == 1) ? player1Slots : player2Slots;
-        bool hasHQ = (currentPlayer == 1) ? player1HasHeadquarter : player2HasHeadquarter;
+        List<TokenData> pool = (player == 1) ? player1Pool : player2Pool;
 
-        if (pool.Count == 0)
+        foreach (TokenData token in pool)
         {
-            Debug.Log($"Gracz {currentPlayer} nie ma wiêcej ¿etonów!");
-            return;
+            if (token.tokenName == tokenName)
+            {
+                return token;
+            }
         }
 
-        // Sprawdzamy, ile slotów jest pustych
-        int emptySlots = 0;
-        foreach (var slot in slots)
-        {
-            if (slot.sprite == null)
-                emptySlots++;
-        }
-
-        // Okreœlamy, ile ¿etonów wylosowaæ
-        int tokensToDraw = Mathf.Min(emptySlots, 3); // Maksymalnie 3 nowe ¿etony
-
-        if (tokensToDraw == 0)
-        {
-            Debug.Log($"Gracz {currentPlayer} ma ju¿ komplet ¿etonów!");
-            return;
-        }
-
-        for (int i = 0; i < slots.Count; i++)
-        {
-            if (tokensToDraw == 0) break;
-            if (slots[i].sprite != null) continue; // Pomijamy zajête sloty
-
-            if (pool.Count == 0) break; // Jeœli pula siê skoñczy, przerywamy
-
-            int randomIndex = Random.Range(0, pool.Count);
-            TokenData drawnToken = pool[randomIndex];
-
-            slots[i].sprite = drawnToken.sprite;
-            slots[i].gameObject.name = drawnToken.tokenName;
-            slots[i].GetComponent<Slot>().assignedToken = drawnToken;
-
-            pool.RemoveAt(randomIndex);
-            tokensToDraw--;
-        }
-
-        Debug.Log($"Gracz {currentPlayer} wylosowa³ {tokensToDraw} nowe ¿etony!");
+        Debug.LogError($"Nie znaleziono ¿etonu o nazwie {tokenName} w puli Gracza {player}!");
+        return null;
     }
- */
+
+    public void SelectTokenForTrash(TokenData token, Image slot)
+    {
+        selectedToken = token;
+        selectedSlot = slot;
+        trashButton.gameObject.SetActive(true);
+    }
+
+    private void TrashSelectedToken()
+    {
+        if (selectedToken != null && selectedSlot != null)
+        {
+            selectedSlot.sprite = null;
+            selectedSlot.gameObject.name = "EmptySlot";
+            selectedSlot.GetComponent<Slot>().assignedToken = null;
+
+            boardManager.AddToGraveyard(selectedToken, boardManager.CurrentPlayer);
+
+            selectedToken = null;
+            selectedSlot = null;
+            trashButton.gameObject.SetActive(false);
+        }
+    }
+
+*/

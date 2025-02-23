@@ -16,6 +16,21 @@ MonoBehaviour:
   sprite: {fileID: 2747690628134850419, guid: 800b878db89ba1746ae593a3242d92e3, type: 3}
   tokenName: Mutek
   tokenType: 0
-  health: 2
+  health: 1
   initiatives: 02000000
-  attackEffects: []
+  attackEffects:
+  - direction: 0
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+  - direction: 1
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0
+  - direction: 5
+    effects:
+    - abilities: 
+      attackPower: 1
+      isRanged: 0

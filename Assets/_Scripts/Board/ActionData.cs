@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ActionData : MonoBehaviour
+public class ActionData
 {
     public TokenData token; // ¯eton, który zosta³ umieszczony
     public Vector3Int position; // Pozycja na planszy
@@ -11,8 +11,11 @@ public class ActionData : MonoBehaviour
 
     public ActionData(TokenData token, Vector3Int position, Image originalSlot)
     {
-        this.token = token;
-        this.position = position;
-        this.originalSlot = originalSlot;
+        if (token != null)
+        {
+            this.token = token;
+            this.position = position;
+            this.originalSlot = originalSlot;
+        }
     }
 }

@@ -22,5 +22,5 @@ MonoBehaviour:
   - direction: 0
     effects:
     - abilities: 
-      attackPower: 1
+      attackPower: 2
       isRanged: 0

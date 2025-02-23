@@ -16,7 +16,7 @@ MonoBehaviour:
   sprite: {fileID: 2747690628134850419, guid: 11afbb7fd2d7673419ed7058a8ac6f31, type: 3}
   tokenName: "No\u017Cownik"
   tokenType: 0
-  health: 2
+  health: 1
   initiatives: 03000000
   attackEffects:
   - direction: 5

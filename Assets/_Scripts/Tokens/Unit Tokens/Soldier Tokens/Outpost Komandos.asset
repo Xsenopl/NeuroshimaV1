@@ -19,7 +19,7 @@ MonoBehaviour:
   health: 1
   initiatives: 01000000
   attackEffects:
-  - direction: 0
+  - direction: 2
     effects:
     - abilities: 
       attackPower: 1

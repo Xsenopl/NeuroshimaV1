@@ -32,7 +32,7 @@ public class BattleController : MonoBehaviour
         }
 
         RemoveDestroyedTokens(tokensToRemove);
-
+        boardManager.ChangeCurrentPlayer();
         Debug.Log("Koñczê bitwê!");
     }
 
@@ -154,10 +154,52 @@ public class BattleController : MonoBehaviour
 
     private void RemoveDestroyedTokens(List<Token> tokensToRemove)
     {
+        StatsManager statsManager = FindObjectOfType<StatsManager>();
+
+        if (statsManager == null)
+        {
+            Debug.LogError("StatsManager nie zosta³ znaleziony w scenie!");
+            return;
+        }
+
         foreach (var deadToken in tokensToRemove)
         {
-            Debug.Log($"¯eton {deadToken.tokenData.tokenName} zniszczony!");
+            if (deadToken == null || deadToken.tokenData == null)
+            {
+                Debug.LogWarning("¯eton lub jego dane s¹ null!");
+                continue;
+            }
+
+            // Pobranie w³aœciciela ¿etonu na podstawie armii
+            int ownerPlayer = boardManager.GetTokenOwner(deadToken.tokenData.army);
+
+            if (ownerPlayer == 0)
+            {
+                Debug.LogError($"Nie mo¿na okreœliæ w³aœciciela dla ¿etonu {deadToken.tokenData.tokenName} ({deadToken.tokenData.army})!");
+                continue;
+            }
+
+            Debug.Log($"¯eton {deadToken.tokenData.tokenName} ({deadToken.tokenData.army}) zosta³ zniszczony i trafia do cmentarza Gracza {ownerPlayer}.");
+
+            // Dodanie ¿etonu do odpowiedniego cmentarza
+            statsManager.AddToGraveyard(deadToken.tokenData, ownerPlayer);
+
+            // Usuniêcie ¿etonu z planszy
             boardManager.RemoveToken(deadToken);
         }
     }
 }
+
+
+/* Stara metoda Usuniêcia martwego ¿etonu + dodanie do cmentarza aktualnego gracza
+    private void RemoveDestroyedTokens(List<Token> tokensToRemove)
+    {
+        foreach (var deadToken in tokensToRemove)
+        {
+            Debug.Log($"¯eton {deadToken.tokenData.tokenName} zniszczony!");   
+            FindObjectOfType<StatsManager>().AddToGraveyard(deadToken.tokenData, boardManager.CurrentPlayer); // Dodaje do cmentarza
+            boardManager.RemoveToken(deadToken);
+        }
+    }
+
+*/

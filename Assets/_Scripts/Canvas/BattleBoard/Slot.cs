@@ -16,10 +16,30 @@ public class Slot : MonoBehaviour
         GetComponent<Button>().onClick.AddListener(OnSlotClick);
     }
 
+    // Przywrócenie slotu do stanu domyœlnego
+    public void ClearSlot()
+    {
+        this.assignedToken = null;
+        this.GetComponent<Image>().sprite = null;
+        this.gameObject.name = "EmptySlot";
+    }
+
     private void OnSlotClick()
     {
-        if (assignedToken != null)
+        if (assignedToken == null) return;
+
+        manager.ShowDiscardConfirmation(this);
+
+        if (manager.HasThreeTokens())                     // Jeœli trzeba odrzuciæ ¿eton
         {
+            //manager.DiscardToken(assignedToken, this);          
+            Debug.Log($"Odrzucono ¿eton: {assignedToken.tokenName}");
+
+            return;
+        }
+        else if(manager.HasTokensLeftToDiscard())             // Jeœli mo¿na odrzuciæ ¿eton
+        { 
+            Debug.Log($"Wybrano ¿eton do zagrania: {assignedToken.tokenName}");
             manager.SelectToken(assignedToken);
         }
     }

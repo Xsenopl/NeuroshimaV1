@@ -266,7 +266,7 @@ public class Token : MonoBehaviour
         }
     }
 
-    // Zapisuje ka¿dy s¹siaduj¹cy token do listy s¹siadów
+    // Zapisuje ka¿dy s¹siaduj¹cy token do listy s¹siadów       --      nie dzia³a z powodu mechaniki Cofniêcia akcji
     public void UpdateNeighbors(Dictionary<Vector2Int, Token> tokenGrid)
     {
         neighbors.Clear();
@@ -282,7 +282,7 @@ public class Token : MonoBehaviour
             }
         }
 
-        Debug.Log($"¯eton na {hexCoords} ma {neighbors.Count} s¹siadów.");
+        // Debug.Log($"¯eton na {hexCoords} ma {neighbors.Count} s¹siadów.");
     }
 
     public void TakeDamage(int damage)

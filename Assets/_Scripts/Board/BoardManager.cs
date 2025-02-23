@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -7,16 +8,35 @@ using UnityEngine.UI;
 
 public class BoardManager : MonoBehaviour
 {
+    private int _currentPlayer = 2; // 1 - Gracz 1, 2 - Gracz 2
+    public int CurrentPlayer 
+    {
+        get => _currentPlayer;
+        set
+        {
+            if (_currentPlayer != value)  // Sprawdzenie, czy wartoœæ faktycznie siê zmienia
+            {
+                _currentPlayer = value;
+                OnTurnChanged();
+            }
+        }
+    }
+    public string player1Army;
+    public string player2Army;
     public Tilemap tilemap;  // Tilemapa reprezentuj¹ca planszê
     public GameObject tokenPrefab;
     public TokenSlotManager tokenManager;
     private Dictionary<Vector3Int, GameObject> occupiedTiles = new Dictionary<Vector3Int, GameObject>();  // Zajête heksy
     public Dictionary<Vector2Int, Token> tokenGrid = new Dictionary<Vector2Int, Token>();
 
+    private Stack<ActionData> actionStack = new Stack<ActionData>();
 
     private void Start()
     {
         // Debug.Log("Plansza za³adowana. Gotowa do umieszczania ¿etonów.");
+        player1Army = "Borgo";
+        player2Army = "Outpost";
+        Debug.Log($"Dla 1 jest {player1Army}.   Dla 2 jest {player2Army}");
     }
 
     private void Update()
@@ -28,6 +48,8 @@ public class BoardManager : MonoBehaviour
             SelectHex(worldPosition);
         }
     }
+
+    public void ChangeCurrentPlayer() { CurrentPlayer = _currentPlayer == 1 ? 2 : 1; }
 
     // Zamiana pozycji œwiata na wspó³rzêdne heksagonalne
     public Vector3Int WorldToHex(Vector3 worldPosition)
@@ -79,10 +101,14 @@ public class BoardManager : MonoBehaviour
         newToken.GetComponent<Token>().Initialize(tokenData);
         newToken.GetComponent<Token>().InitializeRotationArea();
 
-
         occupiedTiles.Add(hexPosition, newToken);
-        tokenManager.RemoveTokenFromSlot(FindSlotByToken(tokenData));
+
+        Image originalSlot = FindSlotByToken(tokenData);
+        actionStack.Push(new ActionData(tokenData, hexPosition, originalSlot));
+        tokenManager.RemoveTokenFromSlot(originalSlot);
+
         Debug.Log($"¯eton {tokenData.tokenName} umieszczony na {hexPosition}");
+        tokenManager.discardConfirmationImage.SetActive(false);
     }
 
     public void RemoveToken(Token token)
@@ -134,6 +160,32 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    public void UndoLastAction()
+    {
+        if (actionStack.Count == 0)
+        {
+            Debug.Log("Brak akcji do cofniêcia!");
+            return;
+        }
+
+        ActionData lastAction = actionStack.Pop();
+
+        // Usuwa ¿eton z planszy
+        if (occupiedTiles.TryGetValue(lastAction.position, out GameObject tokenObject))
+        {
+            Destroy(tokenObject);
+            occupiedTiles.Remove(lastAction.position);
+            tokenGrid.Remove((Vector2Int)lastAction.position);
+        }
+
+        // Przywracam ¿eton do jego oryginalnego slotu
+        lastAction.originalSlot.sprite = lastAction.token.sprite;
+        lastAction.originalSlot.gameObject.name = lastAction.token.tokenName;
+        lastAction.originalSlot.GetComponent<Slot>().assignedToken = lastAction.token;
+
+        Debug.Log($"Cofniêto akcjê: {lastAction.token.tokenName} wróci³ do slotu.");
+    }
+
     public Vector2Int GetHexDirection(Vector2Int hexCoords, AttackDirection direction)
     {
         bool isEvenColumn = hexCoords.y % 2 == 0;
@@ -155,4 +207,88 @@ public class BoardManager : MonoBehaviour
         Vector3Int tilePos = new Vector3Int(pos.x, pos.y, 0);
         return tilemap.HasTile(tilePos); // Sprawdza, czy na tilemapie istnieje kafelek na tej pozycji
     }
+
+    public int GetTokenOwner(string army)
+    {
+        if (army == player1Army) return 1;
+        if (army == player2Army) return 2;
+
+        Debug.LogWarning($"Nie znaleziono w³aœciciela dla armii: {army}");
+        return CurrentPlayer;
+    }
+
+    private void OnTurnChanged()
+    {
+        Debug.Log($"Tura Gracza {CurrentPlayer}");
+        tokenManager.DrawTokens();
+        actionStack.Clear();
+    }
 }
+
+/* Pierwsza próba stworzenia cmentarza i cofniêcia akcji z niego
+    public Dictionary<string, int> graveyardPlayer1 = new Dictionary<string, int>();
+    public Dictionary<string, int> graveyardPlayer2 = new Dictionary<string, int>();
+
+    public void AddToGraveyard(TokenData tokenData, int player)
+    {
+        Dictionary<string, int> graveyard = (player == 1) ? graveyardPlayer1 : graveyardPlayer2;
+
+        if (graveyard.ContainsKey(tokenData.tokenName))
+        {
+            graveyard[tokenData.tokenName]++;
+        }
+        else
+        {
+            graveyard[tokenData.tokenName] = 1;
+        }
+
+        Debug.Log($"¯eton {tokenData.tokenName} dodany do cmentarza gracza {player}.");
+    }
+
+    public void RemoveFromGraveyard(int player)
+    {
+        Dictionary<string, int> graveyard = (player == 1) ? graveyardPlayer1 : graveyardPlayer2;
+
+        if (graveyard.Count == 0)
+        {
+            Debug.Log("Cmentarz jest pusty.");
+            return;
+        }
+
+        string lastKey = graveyard.Keys.Last();
+
+        // ZnajdŸ pierwszy pusty slot
+        List<Image> slots = (player == 1) ? tokenManager.player1Slots : tokenManager.player2Slots;
+        Image emptySlot = slots.FirstOrDefault(s => s.sprite == null);
+
+        if (emptySlot != null)
+        {
+            TokenData restoredToken = tokenManager.GetTokenDataByName(lastKey, player);
+
+            emptySlot.sprite = restoredToken.sprite;
+            emptySlot.gameObject.name = restoredToken.tokenName;
+            emptySlot.GetComponent<Slot>().assignedToken = restoredToken;
+
+            graveyard[lastKey]--;
+            if (graveyard[lastKey] <= 0) graveyard.Remove(lastKey);
+
+            Debug.Log($"Cofniêto akcjê: ¯eton {lastKey} wróci³ do slotu gracza {player}.");
+        }
+        else
+        {
+            Debug.Log("Brak wolnych slotów do przywrócenia ¿etonu!");
+        }
+    }
+    public void DestroyToken(Token token)
+    {
+        if (token == null) return;
+
+        AddToGraveyard(token.tokenData, CurrentPlayer);
+
+        if (token.gameObject != null)
+        {
+            Destroy(token.gameObject);
+        }
+    }
+
+*/
