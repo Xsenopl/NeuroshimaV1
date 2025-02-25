@@ -103,4 +103,21 @@ public class StatsManager : MonoBehaviour
         // Aktualizacja wyœwietlania cmentarza
         PopulateScrollView(graveyard, (player == 1) ? graveyardContentP1 : graveyardContentP2);
     }
+    public void RemoveFromGraveyard(TokenData tokenData, int player)
+    {
+        Dictionary<string, int> graveyard = (player == 1) ? player1Graveyard : player2Graveyard;
+
+        if (graveyard.ContainsKey(tokenData.tokenName))
+        {
+            graveyard[tokenData.tokenName]--;
+
+            if (graveyard[tokenData.tokenName] <= 0)
+            {
+                graveyard.Remove(tokenData.tokenName);
+            }
+        }
+
+        // Aktualizacja wyœwietlania cmentarza
+        PopulateScrollView(graveyard, (player == 1) ? graveyardContentP1 : graveyardContentP2);
+    }
 }

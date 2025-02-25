@@ -7,11 +7,13 @@ using System.Linq;
 public class TokenSlotManager : MonoBehaviour
 {
     public BoardManager boardManager;
+    public GameObject player1SlotsPanel;
+    public GameObject player2SlotsPanel;
     public List<Image> player1Slots;  // Sloty UI dla Gracza 1
     public List<Image> player2Slots;  // Sloty UI dla Gracza 2
     public Button endTurnButton;      // Przycisk "Koniec tury"
     public Button undoButton;         // Przycisk "cofnij"
-    public GameObject discardConfirmationImage; // Obrazek potwierdzaj¹cy odrzucenie
+    public GameObject trashSlotImage; // Obrazek potwierdzaj¹cy odrzucenie
 
     public TokenDatabase player1Database;
     public TokenDatabase player2Database;
@@ -28,7 +30,7 @@ public class TokenSlotManager : MonoBehaviour
         //trashButton.onClick.AddListener(TrashSelectedToken);
 
         undoButton.onClick.AddListener(() => boardManager.UndoLastAction());
-        endTurnButton.onClick.AddListener(EndTurn);  // Przypisanie przycisku do metody
+        endTurnButton.onClick.AddListener(EndTurn);
         InitializePools(); // Rozdzielamy ¿etony na graczy
         ClearSlots();
 
@@ -178,6 +180,7 @@ public class TokenSlotManager : MonoBehaviour
 
         boardManager.ChangeCurrentPlayer();
         DrawTokens();  // Losowanie nowych ¿etonów
+        //UpdatePanelInteractivity();
     }
 
     private void AssignSlotListeners(List<Image> slots, int player)
@@ -212,15 +215,14 @@ public class TokenSlotManager : MonoBehaviour
         return allTokens.Find(t => t.tokenName == tokenName);
     }
 
-//____________PRACE NAD ODRZUCANIEM ¯ETONÓW__________________
-
+//_______________ODRZUCANIE ¯ETONÓW__________________
     // Odrzucenie ¿etonu z rêki i dodanie na cmentarz
     public void DiscardToken(TokenData token, Slot slot)
     {
         int ownerPlayer = boardManager.GetTokenOwner(token.army);
 
-        Debug.Log($"Gracz {ownerPlayer} odrzuci³ ¿eton: {token.tokenName}.");
-
+        //Debug.Log($"Gracz {ownerPlayer} odrzuci³ ¿eton: {token.tokenName}.");
+        boardManager.AddActionToStack(new ActionData(token, Vector3Int.zero, slot.GetComponent<Image>()));
         FindObjectOfType<StatsManager>().AddToGraveyard(token, ownerPlayer);
 
         slot.ClearSlot();
@@ -237,14 +239,14 @@ public class TokenSlotManager : MonoBehaviour
         TokenData tokenToDiscard = selectedSlot.assignedToken;
         DiscardToken(tokenToDiscard, selectedSlot);
 
-        discardConfirmationImage.SetActive(false); // Ukryj obrazek, jeœli odrzucanie nie jest wymagane
+        trashSlotImage.SetActive(false); // Ukryj obrazek, jeœli odrzucanie nie jest wymagane
         selectedSlot = null;
         selectedToken = null;
     }
 
-    public void ShowDiscardConfirmation(Slot slot)
+    public void ShowTrashConfirmation(Slot slot)
     {
-        if (discardConfirmationImage == null)
+        if (trashSlotImage == null)
         {
             Debug.LogError("TrashSlotImage nie jest przypisany!");
             return;
@@ -256,62 +258,35 @@ public class TokenSlotManager : MonoBehaviour
             return;
         }
 
-        discardConfirmationImage.SetActive(true);
+        trashSlotImage.SetActive(true);
         selectedSlot = slot;
 
-        Debug.Log($"Klikniêto ¿eton: {slot.assignedToken.tokenName}. Teraz mo¿na go odrzuciæ.");
+        //Debug.Log($"Klikniêto ¿eton: {slot.assignedToken.tokenName}. Teraz mo¿na go odrzuciæ.");
     }
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    public void RemoveTokenFromSlot(Image slot)
+    public void UpdatePanelInteractivity()
     {
-        slot.sprite = null;
-        slot.gameObject.name = "EmptySlot";
-        slot.GetComponent<Slot>().assignedToken = null;
+        bool isPlayer1Turn = (boardManager.CurrentPlayer == 1);
+
+        SetPanelInteractivity(player1SlotsPanel, isPlayer1Turn);
+        SetPanelInteractivity(player2SlotsPanel, !isPlayer1Turn);
+    }
+    private void SetPanelInteractivity(GameObject panel, bool isActive)
+    {
+        CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
+
+        if (canvasGroup == null)
+        {
+            canvasGroup = panel.AddComponent<CanvasGroup>();
+        }
+
+        canvasGroup.interactable = isActive; // Blokuje klikniêcia
+        canvasGroup.blocksRaycasts = isActive; // Blokuje przechodzenie klikniêæ
+        canvasGroup.alpha = isActive ? 1f : 0.96f;
     }
     public void ClearSelectedToken()
     {
         selectedToken = null;
     }
 }
-
-/* Pierwsza próba stworzenia cmentarza i cofniêcia akcji z niego
-    public TokenData GetTokenDataByName(string tokenName, int player)
-    {
-        List<TokenData> pool = (player == 1) ? player1Pool : player2Pool;
-
-        foreach (TokenData token in pool)
-        {
-            if (token.tokenName == tokenName)
-            {
-                return token;
-            }
-        }
-
-        Debug.LogError($"Nie znaleziono ¿etonu o nazwie {tokenName} w puli Gracza {player}!");
-        return null;
-    }
-
-    public void SelectTokenForTrash(TokenData token, Image slot)
-    {
-        selectedToken = token;
-        selectedSlot = slot;
-        trashButton.gameObject.SetActive(true);
-    }
-
-    private void TrashSelectedToken()
-    {
-        if (selectedToken != null && selectedSlot != null)
-        {
-            selectedSlot.sprite = null;
-            selectedSlot.gameObject.name = "EmptySlot";
-            selectedSlot.GetComponent<Slot>().assignedToken = null;
-
-            boardManager.AddToGraveyard(selectedToken, boardManager.CurrentPlayer);
-
-            selectedToken = null;
-            selectedSlot = null;
-            trashButton.gameObject.SetActive(false);
-        }
-    }
-
-*/

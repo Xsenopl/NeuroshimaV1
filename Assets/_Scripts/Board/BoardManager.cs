@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class BoardManager : MonoBehaviour
 {
-    private int _currentPlayer = 2; // 1 - Gracz 1, 2 - Gracz 2
+    private int _currentPlayer = 1; // 1 - Gracz 1, 2 - Gracz 2
     public int CurrentPlayer 
     {
         get => _currentPlayer;
@@ -105,10 +105,11 @@ public class BoardManager : MonoBehaviour
 
         Image originalSlot = FindSlotByToken(tokenData);
         actionStack.Push(new ActionData(tokenData, hexPosition, originalSlot));
-        tokenManager.RemoveTokenFromSlot(originalSlot);
+
+        originalSlot.GetComponent<Slot>().ClearSlot();
 
         Debug.Log($"¯eton {tokenData.tokenName} umieszczony na {hexPosition}");
-        tokenManager.discardConfirmationImage.SetActive(false);
+        tokenManager.trashSlotImage.SetActive(false);
     }
 
     public void RemoveToken(Token token)
@@ -170,20 +171,51 @@ public class BoardManager : MonoBehaviour
 
         ActionData lastAction = actionStack.Pop();
 
-        // Usuwa ¿eton z planszy
-        if (occupiedTiles.TryGetValue(lastAction.position, out GameObject tokenObject))
+        if (lastAction.position != Vector3Int.zero) // Cofanie ¿etonu z planszy
         {
-            Destroy(tokenObject);
-            occupiedTiles.Remove(lastAction.position);
-            tokenGrid.Remove((Vector2Int)lastAction.position);
+            // Usuwa ¿eton z planszy
+            if (occupiedTiles.TryGetValue(lastAction.position, out GameObject tokenObject))
+            {
+                Destroy(tokenObject);
+                occupiedTiles.Remove(lastAction.position);
+                tokenGrid.Remove((Vector2Int)lastAction.position);
+            }
+
+            // Przywracam ¿eton do jego oryginalnego slotu
+            lastAction.originalSlot.sprite = lastAction.token.sprite;
+            lastAction.originalSlot.gameObject.name = lastAction.token.tokenName;
+            lastAction.originalSlot.GetComponent<Slot>().assignedToken = lastAction.token;
+
+            Debug.Log($"Cofniêto akcjê: {lastAction.token.tokenName} wróci³ do slotu.");
         }
+        else // Cofanie odrzuconego ¿etonu
+        {
+            List<Image> slots = (CurrentPlayer == 1) ? tokenManager.player1Slots : tokenManager.player2Slots;
+            Image emptySlot = slots.FirstOrDefault(s => s.sprite == null);
 
-        // Przywracam ¿eton do jego oryginalnego slotu
-        lastAction.originalSlot.sprite = lastAction.token.sprite;
-        lastAction.originalSlot.gameObject.name = lastAction.token.tokenName;
-        lastAction.originalSlot.GetComponent<Slot>().assignedToken = lastAction.token;
+            if (emptySlot != null)
+            {
+                emptySlot.sprite = lastAction.token.sprite;
+                emptySlot.gameObject.name = lastAction.token.tokenName;
+                emptySlot.GetComponent<Slot>().assignedToken = lastAction.token;
 
-        Debug.Log($"Cofniêto akcjê: {lastAction.token.tokenName} wróci³ do slotu.");
+                Debug.Log($"Cofniêto odrzucony ¿eton: {lastAction.token.tokenName}");
+
+                // Usuniêcie ¿etonu z cmentarza
+                int ownerPlayer = GetTokenOwner(lastAction.token.army);
+                StatsManager statsManager = FindObjectOfType<StatsManager>();
+                if (statsManager != null) { statsManager.RemoveFromGraveyard(lastAction.token, ownerPlayer); }           
+
+                if (tokenManager.HasThreeTokens())
+                {
+                    Debug.Log("Gracz ma 3 ¿etony. Musi odrzuciæ jeden.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Brak wolnych slotów do przywrócenia ¿etonu.");
+            }
+        }
     }
 
     public Vector2Int GetHexDirection(Vector2Int hexCoords, AttackDirection direction)
@@ -208,6 +240,11 @@ public class BoardManager : MonoBehaviour
         return tilemap.HasTile(tilePos); // Sprawdza, czy na tilemapie istnieje kafelek na tej pozycji
     }
 
+    public void AddActionToStack(ActionData action)
+    {
+        actionStack.Push(action);
+    }
+
     public int GetTokenOwner(string army)
     {
         if (army == player1Army) return 1;
@@ -217,10 +254,30 @@ public class BoardManager : MonoBehaviour
         return CurrentPlayer;
     }
 
+    public int GetHighestInitiative()
+    {
+        int maxInitiative = 0;
+
+        foreach (var tokenEntry in tokenGrid)
+        {
+            Token token = tokenEntry.Value;
+            if (token == null || token.currentInitiatives.Count == 0) continue;
+
+            int highestUnitInitiative = token.currentInitiatives.Max();
+            if (highestUnitInitiative > maxInitiative)
+            {
+                maxInitiative = highestUnitInitiative;
+            }
+        }
+
+        return maxInitiative;
+    }
+
     private void OnTurnChanged()
     {
         Debug.Log($"Tura Gracza {CurrentPlayer}");
         tokenManager.DrawTokens();
+        tokenManager.UpdatePanelInteractivity();
         actionStack.Clear();
     }
 }

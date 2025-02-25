@@ -19,16 +19,16 @@ public class Slot : MonoBehaviour
     // Przywrócenie slotu do stanu domyœlnego
     public void ClearSlot()
     {
-        this.assignedToken = null;
-        this.GetComponent<Image>().sprite = null;
-        this.gameObject.name = "EmptySlot";
+        assignedToken = null;
+        GetComponent<Image>().sprite = null;
+        gameObject.name = "EmptySlot";
     }
 
     private void OnSlotClick()
     {
         if (assignedToken == null) return;
 
-        manager.ShowDiscardConfirmation(this);
+        manager.ShowTrashConfirmation(this);
 
         if (manager.HasThreeTokens())                     // Jeœli trzeba odrzuciæ ¿eton
         {

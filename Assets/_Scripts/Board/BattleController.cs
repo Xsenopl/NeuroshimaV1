@@ -9,6 +9,8 @@ public class BattleController : MonoBehaviour
     public Button battleButton;
     public BoardManager boardManager;
 
+    private int battlePhase; // Aktualna faza bitwy
+
     private void Start()
     {
         battleButton.onClick.AddListener(StartBattle);
@@ -18,71 +20,35 @@ public class BattleController : MonoBehaviour
     {
         Debug.Log("Rozpoczynam bitwê!");
 
-        List<Token> tokensToRemove = new List<Token>();
+        battlePhase = boardManager.GetHighestInitiative();
+        MiddleBattle();
 
-        foreach (var tokenEntry in boardManager.tokenGrid)
-        {
-            Token token = tokenEntry.Value;
-            if (token == null) continue;
-
-            foreach (var attackEffect in token.tokenData.attackEffects)
-            {
-                ProcessAttack(token, attackEffect, tokensToRemove);
-            }
-        }
-
-        RemoveDestroyedTokens(tokensToRemove);
         boardManager.ChangeCurrentPlayer();
         Debug.Log("Koñczê bitwê!");
     }
 
-    private void ProcessAttack0(Token attacker, DirectionalEffects attackEffect, List<Token> tokensToRemove)
+    private void MiddleBattle()
     {
-        AttackDirection rotatedDir = attacker.GetRotatedDirection(attackEffect.direction);
-        Vector2Int attackDir = boardManager.GetHexDirection(attacker.hexCoords, rotatedDir);
-        Vector2Int targetPos = attacker.hexCoords + attackDir;
-
-        Token targetToken = attackEffect.effects.Any(effect => effect.isRanged)
-            ? GetRangedTarget0(targetPos, rotatedDir)
-            : GetMeleeTarget0(targetPos);
-
-        if (targetToken != null)
+        while (battlePhase >= 0)
         {
-            foreach (var effect in attackEffect.effects)
-            {
-                targetToken.TakeDamage(effect.attackPower);
-                Debug.Log($"{attacker.tokenData.tokenName} atakuje {targetToken.tokenData.tokenName} za {effect.attackPower} DMG!");
+            Debug.Log($"Faza bitwy: {battlePhase}");
 
-                if (targetToken.currentHealth <= 0 && !tokensToRemove.Contains(targetToken))
+            List<Token> tokensToRemove = new List<Token>();
+
+            foreach (var tokenEntry in boardManager.tokenGrid)
+            {
+                Token token = tokenEntry.Value;
+                if (token == null || !token.currentInitiatives.Contains(battlePhase)) continue;
+
+                foreach (var attackEffect in token.tokenData.attackEffects)
                 {
-                    tokensToRemove.Add(targetToken);
+                    ProcessAttack(token, attackEffect, tokensToRemove);
                 }
             }
+
+            RemoveDestroyedTokens(tokensToRemove);
+            battlePhase--;
         }
-    }
-
-    private Token GetMeleeTarget0(Vector2Int targetPos)
-    {
-        boardManager.tokenGrid.TryGetValue(targetPos, out Token targetToken);
-        return targetToken;
-    }
-
-    private Token GetRangedTarget0(Vector2Int targetPos, AttackDirection direction)
-    {
-
-        while (boardManager.IsValidPosition(targetPos))
-        {
-            if (boardManager.tokenGrid.TryGetValue(targetPos, out Token targetToken))
-            {
-                //Debug.Log($"Znaleziono cel: {targetToken.tokenData.tokenName} na pozycji {targetPos}");
-                return targetToken;
-            }
-
-            Vector2Int attackDir = boardManager.GetHexDirection(targetPos, direction);
-            targetPos += attackDir;
-        }
-
-        return null;
     }
 
     private void ProcessAttack(Token attacker, DirectionalEffects attackEffect, List<Token> tokensToRemove)
@@ -150,8 +116,6 @@ public class BattleController : MonoBehaviour
         return attacker.tokenData.army != target.tokenData.army;
     }
 
-
-
     private void RemoveDestroyedTokens(List<Token> tokensToRemove)
     {
         StatsManager statsManager = FindObjectOfType<StatsManager>();
@@ -189,17 +153,3 @@ public class BattleController : MonoBehaviour
         }
     }
 }
-
-
-/* Stara metoda Usuniêcia martwego ¿etonu + dodanie do cmentarza aktualnego gracza
-    private void RemoveDestroyedTokens(List<Token> tokensToRemove)
-    {
-        foreach (var deadToken in tokensToRemove)
-        {
-            Debug.Log($"¯eton {deadToken.tokenData.tokenName} zniszczony!");   
-            FindObjectOfType<StatsManager>().AddToGraveyard(deadToken.tokenData, boardManager.CurrentPlayer); // Dodaje do cmentarza
-            boardManager.RemoveToken(deadToken);
-        }
-    }
-
-*/
