@@ -1,23 +1,25 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class Token : MonoBehaviour
 {
+    public TokenData tokenData;
     public int currentHealth;
     public List<int> currentInitiatives;
+    public List<DirectionalEffects> currentAttackEffects;
 
-    private bool isBeingRotated = false;
     private bool isPlaced = false;
+    private bool isBeingRotated = false;
     private Vector3 initialMousePosition;
     private float currentRotation = 0f;
     public GameObject rotationAreaPrefab;
     private GameObject rotationArea;
     private CircleCollider2D circleCollider;
 
-    public TokenData tokenData;
     private SpriteRenderer spriteRenderer;
 
     public Vector2Int hexCoords; // Wspó³rzêdne ¿etonu w uk³adzie heksagonalnym
@@ -57,6 +59,58 @@ public class Token : MonoBehaviour
         spriteRenderer.sprite = data.sprite;  // Za³adowanie grafiki z ScriptableObject
         currentHealth = data.health;
         currentInitiatives = new List<int>(data.initiatives);
+
+        currentAttackEffects = new List<DirectionalEffects>();
+
+        if (tokenData.attackEffects != null) // Sprawdzenie, czy `attackEffects` istnieje
+        {
+            foreach (var effect in tokenData.attackEffects)
+            {
+                if (effect.effects == null || effect.effects.Count == 0) continue; // Unikamy b³êdu dla pustych list
+
+                // Sprawdzenie, czy `currentAttackEffects` zawiera ju¿ wpis dla danego kierunku
+                var existingEffect = currentAttackEffects.FirstOrDefault(e => e.direction == effect.direction);
+
+                if (existingEffect.effects != null && existingEffect.effects.Count > 0) // Jeœli istnieje, dodajemy `TokenEffect`
+                {
+                    foreach (var tokenEffect in effect.effects)
+                    {
+                        TokenEffect newTokenEffect = new TokenEffect
+                        {
+                            attackPower = tokenEffect.attackPower,
+                            isRanged = tokenEffect.isRanged,
+                            abilities = (SpecialAbility[])tokenEffect.abilities.Clone()
+                        };
+
+                        existingEffect.effects.Add(newTokenEffect);
+                    }
+                }
+                else // Jeœli nie istnieje, tworzymy nowy wpis
+                {
+                    DirectionalEffects newEffect = new DirectionalEffects
+                    {
+                        direction = effect.direction,
+                        effects = new List<TokenEffect>()
+                    };
+
+                    foreach (var tokenEffect in effect.effects)
+                    {
+                        TokenEffect newTokenEffect = new TokenEffect
+                        {
+                            attackPower = tokenEffect.attackPower,
+                            isRanged = tokenEffect.isRanged,
+                            abilities = (SpecialAbility[])tokenEffect.abilities.Clone()
+                        };
+
+                        newEffect.effects.Add(newTokenEffect);
+                    }
+
+                    currentAttackEffects.Add(newEffect);
+                }
+            }
+        }
+        Debug.Log($"{tokenData.tokenName} zosta³ zainicjalizowany. Pocz¹tkowe attackEffects: " +
+               $"{string.Join(" | ", currentAttackEffects.Select(e => $"Kierunek: {e.direction}, Ataki: {string.Join(", ", e.effects.Select(a => a.attackPower))}"))}");
     }
 
     void Update()

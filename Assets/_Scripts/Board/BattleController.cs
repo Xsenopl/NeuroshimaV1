@@ -20,6 +20,7 @@ public class BattleController : MonoBehaviour
     {
         Debug.Log("Rozpoczynam bitwê!");
 
+        ApplyModuleEffects();
         battlePhase = boardManager.GetHighestInitiative();
         MiddleBattle();
 
@@ -40,7 +41,7 @@ public class BattleController : MonoBehaviour
                 Token token = tokenEntry.Value;
                 if (token == null || !token.currentInitiatives.Contains(battlePhase)) continue;
 
-                foreach (var attackEffect in token.tokenData.attackEffects)
+                foreach (var attackEffect in token.currentAttackEffects)
                 {
                     ProcessAttack(token, attackEffect, tokensToRemove);
                 }
@@ -65,7 +66,7 @@ public class BattleController : MonoBehaviour
             foreach (var effect in attackEffect.effects)
             {
                 targetToken.TakeDamage(effect.attackPower);
-                Debug.Log($"{attacker.tokenData.tokenName} atakuje {targetToken.tokenData.tokenName} za {effect.attackPower} DMG!");
+                Debug.Log($"{attacker.tokenData.tokenName} ({attacker.currentAttackEffects.Count} efektów) atakuje {targetToken.tokenData.tokenName} za {effect.attackPower} DMG! (Ranged: {effect.isRanged})");
 
                 if (targetToken.currentHealth <= 0 && !tokensToRemove.Contains(targetToken))
                 {
@@ -143,7 +144,7 @@ public class BattleController : MonoBehaviour
                 continue;
             }
 
-            Debug.Log($"¯eton {deadToken.tokenData.tokenName} ({deadToken.tokenData.army}) zosta³ zniszczony i trafia do cmentarza Gracza {ownerPlayer}.");
+            Debug.Log($"¯eton {deadToken.tokenData.tokenName} ({deadToken.tokenData.army}) zosta³ zniszczony");
 
             // Dodanie ¿etonu do odpowiedniego cmentarza
             statsManager.AddToGraveyard(deadToken.tokenData, ownerPlayer);
@@ -152,4 +153,82 @@ public class BattleController : MonoBehaviour
             boardManager.RemoveToken(deadToken);
         }
     }
+
+    // ________________Prace nad modu³ami________________
+    private void ApplyModuleEffects()
+    {
+        foreach (var tokenEntry in boardManager.tokenGrid)
+        {
+            Token unit = tokenEntry.Value;
+            if (unit == null || unit.tokenData.tokenType == TokenType.Module) continue;
+
+            List<ModuleEffect> effects = boardManager.GetModuleEffectsForUnit(unit);
+            Debug.Log($"Jednostka {unit.tokenData.tokenName} otrzyma³a {effects.Count} efektów modu³ów.");
+
+            foreach (var effect in effects)
+            {
+                switch (effect.effectType)
+                {
+                    case ModuleEffectType.MeleeDamageBoost:
+                        foreach (var attackEffect in unit.currentAttackEffects)
+                        {
+                            for (int i = 0; i < attackEffect.effects.Count; i++)
+                            {
+                                if (!attackEffect.effects[i].isRanged) // Tylko ataki wrêcz
+                                {
+                                    attackEffect.effects[i] = new TokenEffect
+                                    {
+                                        attackPower = attackEffect.effects[i].attackPower + effect.value,
+                                        isRanged = attackEffect.effects[i].isRanged,
+                                        abilities = (SpecialAbility[])attackEffect.effects[i].abilities.Clone()
+                                    };
+                                }
+                            }
+                        }
+                        Debug.Log($"{unit.tokenData.tokenName} zyska³ {effect.value} do ataku wrêcz! Nowe wartoœci: " +
+                            $"{string.Join(", ", unit.currentAttackEffects.SelectMany(e => e.effects.Select(a => a.attackPower)))}");
+                        break;
+
+
+                    case ModuleEffectType.RangedDamageBoost:
+                        foreach (var attackEffect in unit.currentAttackEffects)
+                        {
+                            for (int i = 0; i < attackEffect.effects.Count; i++)
+                            {
+                                if (attackEffect.effects[i].isRanged) // Tylko ataki dystansowe
+                                {
+                                    attackEffect.effects[i] = new TokenEffect
+                                    {
+                                        attackPower = attackEffect.effects[i].attackPower + effect.value,
+                                        isRanged = attackEffect.effects[i].isRanged,
+                                        abilities = (SpecialAbility[])attackEffect.effects[i].abilities.Clone()
+                                    };
+                                }
+                            }
+                        }
+                        Debug.Log($"{unit.tokenData.tokenName} zyska³ {effect.value} do ataku dystansowego! Nowe wartoœci: " +
+                            $"{string.Join(", ", unit.currentAttackEffects.SelectMany(e => e.effects.Select(a => a.attackPower)))}");
+                        break;
+
+                    case ModuleEffectType.HealthBoost:
+                        unit.currentHealth += effect.value;
+                        break;
+
+                    case ModuleEffectType.InitiativeBoost:
+                        unit.currentInitiatives = unit.currentInitiatives.Select(i => i + effect.value).ToList();
+                        break;
+
+                    case ModuleEffectType.InitiativeReduction:
+                        unit.currentInitiatives = unit.currentInitiatives.Select(i => i - effect.value).ToList();
+                        break;
+
+                    case ModuleEffectType.ExtraInitiative:
+                        int minInitiative = unit.currentInitiatives.Min();
+                        unit.currentInitiatives.Add(minInitiative - 1);
+                        break;
+                }
+            }
+        }
+    }
+
 }

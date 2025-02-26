@@ -12,6 +12,7 @@ public class TokenData : ScriptableObject
     public int health;
     public List<int> initiatives;
     public List<DirectionalEffects> attackEffects; // Lista efektów ataku i umiejêtnoœci wed³ug kierunku
+    public List<ModuleEffect> moduleEffects;
 }
 
 public enum TokenType { Unit, Module, Headquarter, Action }
@@ -36,3 +37,15 @@ public struct DirectionalEffects
     public List<TokenEffect> effects; // Lista efektów w danym kierunku
 }
 
+[System.Serializable]
+public struct ModuleEffect
+{
+    public ModuleEffectType effectType; // Typ efektu modu³u
+    public int value;                   // Wartoœæ efektu (np. +1 do obra¿eñ, +1 inicjatywa)
+    public AttackDirection direction;   // Kierunek
+}
+
+public enum ModuleEffectType
+{
+    MeleeDamageBoost, RangedDamageBoost, HealthBoost, InitiativeBoost, InitiativeReduction, ExtraInitiative
+}

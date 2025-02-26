@@ -280,72 +280,34 @@ public class BoardManager : MonoBehaviour
         tokenManager.UpdatePanelInteractivity();
         actionStack.Clear();
     }
+
+ // ________________Prace nad modu³ami________________
+    public List<ModuleEffect> GetModuleEffectsForUnit(Token unit)
+    {
+        List<ModuleEffect> appliedEffects = new List<ModuleEffect>();
+
+        foreach (var tokenEntry in tokenGrid)
+        {
+            Token potentialModule = tokenEntry.Value;
+            if (potentialModule == null || potentialModule.tokenData.tokenType != TokenType.Module)
+                continue;
+
+            foreach (var effect in potentialModule.tokenData.moduleEffects)
+            {
+                AttackDirection rotatedDir = potentialModule.GetRotatedDirection(effect.direction);
+                Vector2Int moduleEffectDir = GetHexDirection(potentialModule.hexCoords, rotatedDir);
+                Vector2Int targetPos = potentialModule.hexCoords + moduleEffectDir;
+
+                if (targetPos == unit.hexCoords)
+                {
+                    appliedEffects.Add(effect);
+                    Debug.Log($"MODU£ {potentialModule.tokenData.tokenName} wp³ywa na {unit.tokenData.tokenName} z efektem {effect.effectType} +{effect.value}");
+                }
+            }
+        }
+
+        return appliedEffects;
+    }
+
+
 }
-
-/* Pierwsza próba stworzenia cmentarza i cofniêcia akcji z niego
-    public Dictionary<string, int> graveyardPlayer1 = new Dictionary<string, int>();
-    public Dictionary<string, int> graveyardPlayer2 = new Dictionary<string, int>();
-
-    public void AddToGraveyard(TokenData tokenData, int player)
-    {
-        Dictionary<string, int> graveyard = (player == 1) ? graveyardPlayer1 : graveyardPlayer2;
-
-        if (graveyard.ContainsKey(tokenData.tokenName))
-        {
-            graveyard[tokenData.tokenName]++;
-        }
-        else
-        {
-            graveyard[tokenData.tokenName] = 1;
-        }
-
-        Debug.Log($"¯eton {tokenData.tokenName} dodany do cmentarza gracza {player}.");
-    }
-
-    public void RemoveFromGraveyard(int player)
-    {
-        Dictionary<string, int> graveyard = (player == 1) ? graveyardPlayer1 : graveyardPlayer2;
-
-        if (graveyard.Count == 0)
-        {
-            Debug.Log("Cmentarz jest pusty.");
-            return;
-        }
-
-        string lastKey = graveyard.Keys.Last();
-
-        // ZnajdŸ pierwszy pusty slot
-        List<Image> slots = (player == 1) ? tokenManager.player1Slots : tokenManager.player2Slots;
-        Image emptySlot = slots.FirstOrDefault(s => s.sprite == null);
-
-        if (emptySlot != null)
-        {
-            TokenData restoredToken = tokenManager.GetTokenDataByName(lastKey, player);
-
-            emptySlot.sprite = restoredToken.sprite;
-            emptySlot.gameObject.name = restoredToken.tokenName;
-            emptySlot.GetComponent<Slot>().assignedToken = restoredToken;
-
-            graveyard[lastKey]--;
-            if (graveyard[lastKey] <= 0) graveyard.Remove(lastKey);
-
-            Debug.Log($"Cofniêto akcjê: ¯eton {lastKey} wróci³ do slotu gracza {player}.");
-        }
-        else
-        {
-            Debug.Log("Brak wolnych slotów do przywrócenia ¿etonu!");
-        }
-    }
-    public void DestroyToken(Token token)
-    {
-        if (token == null) return;
-
-        AddToGraveyard(token.tokenData, CurrentPlayer);
-
-        if (token.gameObject != null)
-        {
-            Destroy(token.gameObject);
-        }
-    }
-
-*/

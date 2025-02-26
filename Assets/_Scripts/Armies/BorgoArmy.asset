@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: BorgoArmy
   m_EditorClassIdentifier: 
   allTokens:
-  - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
   - {fileID: 11400000, guid: c29c1ec3e698e1248b0188e82c703d78, type: 2}
   - {fileID: 11400000, guid: 296fdecd8af4f264aa857791370d072b, type: 2}
   - {fileID: 11400000, guid: 296fdecd8af4f264aa857791370d072b, type: 2}
-  - {fileID: 11400000, guid: 296fdecd8af4f264aa857791370d072b, type: 2}
-  - {fileID: 11400000, guid: 296fdecd8af4f264aa857791370d072b, type: 2}
+  - {fileID: 11400000, guid: 4a9dd02cf0c08f443b50d6228a65e805, type: 2}
+  - {fileID: 11400000, guid: 4a9dd02cf0c08f443b50d6228a65e805, type: 2}
   - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
   - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
+  - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
+  - {fileID: 11400000, guid: 4a9dd02cf0c08f443b50d6228a65e805, type: 2}
+  - {fileID: 11400000, guid: 08d2f0378c8b0174c8ebd052f1f46e57, type: 2}
+  - {fileID: 11400000, guid: 08d2f0378c8b0174c8ebd052f1f46e57, type: 2}
