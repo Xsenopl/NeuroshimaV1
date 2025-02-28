@@ -20,7 +20,7 @@ public class BattleController : MonoBehaviour
     {
         Debug.Log("Rozpoczynam bitwê!");
 
-        ApplyModuleEffects();
+        //ApplyModuleEffects();
         battlePhase = boardManager.GetHighestInitiative();
         MiddleBattle();
 

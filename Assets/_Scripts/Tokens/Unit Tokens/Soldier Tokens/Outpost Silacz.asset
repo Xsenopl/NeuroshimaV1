@@ -24,3 +24,4 @@ MonoBehaviour:
     - abilities: 
       attackPower: 2
       isRanged: 0
+  moduleEffects: []

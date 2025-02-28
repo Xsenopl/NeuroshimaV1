@@ -108,6 +108,8 @@ public class BoardManager : MonoBehaviour
 
         originalSlot.GetComponent<Slot>().ClearSlot();
 
+        UpdateModuleEffects();
+
         Debug.Log($"¯eton {tokenData.tokenName} umieszczony na {hexPosition}");
         tokenManager.trashSlotImage.SetActive(false);
     }
@@ -119,6 +121,15 @@ public class BoardManager : MonoBehaviour
         // Sprawdzenie, czy ¿eton nadal istnieje w `tokenGrid`
         if (tokenGrid.ContainsKey(token.hexCoords))
         {
+            // Sprawdzenie, czy jest modu³em
+            if (token.tokenData.tokenType == TokenType.Module)
+            {
+                foreach (var tokenEntry in tokenGrid.Values)
+                {
+                    RemoveModuleEffectsFromUnit(tokenEntry, token);
+                }
+            }
+
             tokenGrid.Remove(token.hexCoords); // Usuniêcie z mapy tokenów
             occupiedTiles.Remove((Vector3Int)token.hexCoords);
         }
@@ -127,6 +138,7 @@ public class BoardManager : MonoBehaviour
         if (token.gameObject != null)
         {
             Destroy(token.gameObject);
+            UpdateModuleEffects();
         }
     }
 
@@ -305,8 +317,181 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
-
         return appliedEffects;
+    }
+
+    public List<Token> GetModulesAffectingUnit(Token unit)
+    {
+        List<Token> affectingModules = new List<Token>();
+
+        foreach (var tokenEntry in tokenGrid)
+        {
+            Token potentialModule = tokenEntry.Value;
+            if (potentialModule == null || potentialModule.tokenData.tokenType != TokenType.Module)
+                continue;
+
+            foreach (var effect in potentialModule.tokenData.moduleEffects)
+            {
+                AttackDirection rotatedDir = potentialModule.GetRotatedDirection(effect.direction);
+                Vector2Int moduleEffectDir = GetHexDirection(potentialModule.hexCoords, rotatedDir);
+                Vector2Int targetPos = potentialModule.hexCoords + moduleEffectDir;
+
+                if (targetPos == unit.hexCoords)
+                {
+                    affectingModules.Add(potentialModule);
+                }
+            }
+        }
+
+        return affectingModules;
+    }
+
+    public void UpdateModuleEffects()
+    {
+        // Najpierw usuwamy wszystkie istniej¹ce efekty modu³ów
+        foreach (var tokenEntry in tokenGrid)
+        {
+            Token unit = tokenEntry.Value;
+            if (unit == null || unit.tokenData.tokenType == TokenType.Module) continue;
+
+            unit.appliedModuleEffects.Clear(); // Resetowanie wszystkich efektów modu³ów
+            unit.Initialize(unit.tokenData); // Resetowanie statystyk jednostki do wartoœci bazowych
+        }
+
+        // Teraz ponownie stosujemy efekty modu³ów
+        foreach (var tokenEntry in tokenGrid)
+        {
+            Token unit = tokenEntry.Value;
+            if (unit == null || unit.tokenData.tokenType == TokenType.Module) continue;
+
+            List<Token> affectingModules = GetModulesAffectingUnit(unit);
+
+            foreach (var module in affectingModules)
+            {
+                List<ModuleEffect> applicableEffects = GetApplicableModuleEffectsForUnit(module, unit);
+                ApplyModuleEffectsToUnit(unit, applicableEffects, module);
+            }
+        }
+    }
+
+    public List<ModuleEffect> GetApplicableModuleEffectsForUnit(Token module, Token unit)
+    {
+        List<ModuleEffect> applicableEffects = new List<ModuleEffect>();
+
+        foreach (var effect in module.tokenData.moduleEffects)
+        {
+            AttackDirection rotatedDir = module.GetRotatedDirection(effect.direction);
+            Vector2Int moduleEffectDir = GetHexDirection(module.hexCoords, rotatedDir);
+            Vector2Int targetPos = module.hexCoords + moduleEffectDir;
+
+            if (targetPos == unit.hexCoords)
+            {
+                applicableEffects.Add(effect);
+            }
+        }
+
+        return applicableEffects;
+    }
+
+    public void ApplyModuleEffectsToUnit(Token unit, List<ModuleEffect> effects, Token module)
+    {
+        if (unit == null) return;
+
+        foreach (var effect in effects)
+        {
+            unit.appliedModuleEffects.Add(new AppliedModuleEffect(effect, module)); // Zapisujemy efekt dla tego modu³u
+
+            switch (effect.effectType)
+            {
+                case ModuleEffectType.MeleeDamageBoost:
+                    for (int i = 0; i < unit.currentAttackEffects.Count; i++)
+                    {
+                        for (int j = 0; j < unit.currentAttackEffects[i].effects.Count; j++)
+                        {
+                            if (!unit.currentAttackEffects[i].effects[j].isRanged)
+                            {
+                                unit.currentAttackEffects[i].effects[j] = new TokenEffect
+                                {
+                                    attackPower = unit.currentAttackEffects[i].effects[j].attackPower + effect.value,
+                                    isRanged = unit.currentAttackEffects[i].effects[j].isRanged,
+                                    abilities = (SpecialAbility[])unit.currentAttackEffects[i].effects[j].abilities.Clone()
+                                };
+                            }
+                        }
+                    }
+                    break;
+
+                case ModuleEffectType.RangedDamageBoost:
+                    for (int i = 0; i < unit.currentAttackEffects.Count; i++)
+                    {
+                        for (int j = 0; j < unit.currentAttackEffects[i].effects.Count; j++)
+                        {
+                            if (unit.currentAttackEffects[i].effects[j].isRanged)
+                            {
+                                unit.currentAttackEffects[i].effects[j] = new TokenEffect
+                                {
+                                    attackPower = unit.currentAttackEffects[i].effects[j].attackPower + effect.value,
+                                    isRanged = unit.currentAttackEffects[i].effects[j].isRanged,
+                                    abilities = (SpecialAbility[])unit.currentAttackEffects[i].effects[j].abilities.Clone()
+                                };
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    public void RemoveModuleEffectsFromUnit(Token unit, Token module)
+    {
+        if (unit == null) return;
+
+        // Znalezienie efektów, które by³y dodane przez ten konkretny modu³
+        var effectsToRemove = unit.appliedModuleEffects.Where(e => e.sourceModule == module).ToList();
+
+        foreach (var appliedEffect in effectsToRemove)
+        {
+            switch (appliedEffect.effect.effectType)
+            {
+                case ModuleEffectType.MeleeDamageBoost:
+                    for (int i = 0; i < unit.currentAttackEffects.Count; i++)
+                    {
+                        for (int j = 0; j < unit.currentAttackEffects[i].effects.Count; j++)
+                        {
+                            if (!unit.currentAttackEffects[i].effects[j].isRanged)
+                            {
+                                unit.currentAttackEffects[i].effects[j] = new TokenEffect
+                                {
+                                    attackPower = unit.currentAttackEffects[i].effects[j].attackPower - appliedEffect.effect.value,
+                                    isRanged = unit.currentAttackEffects[i].effects[j].isRanged,
+                                    abilities = (SpecialAbility[])unit.currentAttackEffects[i].effects[j].abilities.Clone()
+                                };
+                            }
+                        }
+                    }
+                    break;
+
+                case ModuleEffectType.RangedDamageBoost:
+                    for (int i = 0; i < unit.currentAttackEffects.Count; i++)
+                    {
+                        for (int j = 0; j < unit.currentAttackEffects[i].effects.Count; j++)
+                        {
+                            if (unit.currentAttackEffects[i].effects[j].isRanged)
+                            {
+                                unit.currentAttackEffects[i].effects[j] = new TokenEffect
+                                {
+                                    attackPower = unit.currentAttackEffects[i].effects[j].attackPower - appliedEffect.effect.value,
+                                    isRanged = unit.currentAttackEffects[i].effects[j].isRanged,
+                                    abilities = (SpecialAbility[])unit.currentAttackEffects[i].effects[j].abilities.Clone()
+                                };
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            unit.appliedModuleEffects.Remove(appliedEffect);
+        }
     }
 
 

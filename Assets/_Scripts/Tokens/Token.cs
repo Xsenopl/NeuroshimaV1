@@ -3,10 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-//using static UnityEngine.RuleTile.TilingRuleOutput;
+public class AppliedModuleEffect
+{
+    public ModuleEffect effect;
+    public Token sourceModule; // Modu³, który doda³ ten efekt
+
+    public AppliedModuleEffect(ModuleEffect effect, Token sourceModule)
+    {
+        this.effect = effect;
+        this.sourceModule = sourceModule;
+    }
+}
 
 public class Token : MonoBehaviour
 {
+
     public TokenData tokenData;
     public int currentHealth;
     public List<int> currentInitiatives;
@@ -24,6 +35,8 @@ public class Token : MonoBehaviour
 
     public Vector2Int hexCoords; // Wspó³rzêdne ¿etonu w uk³adzie heksagonalnym
     private List<Token> neighbors = new List<Token>();
+    
+    public List<AppliedModuleEffect> appliedModuleEffects { get; private set; } = new List<AppliedModuleEffect>();
 
     private static readonly Vector2Int[] evenRowOffsets = {
         new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 1),
@@ -61,56 +74,60 @@ public class Token : MonoBehaviour
         currentInitiatives = new List<int>(data.initiatives);
 
         currentAttackEffects = new List<DirectionalEffects>();
+        InitializeCurrentEffects();
 
-        if (tokenData.attackEffects != null) // Sprawdzenie, czy `attackEffects` istnieje
-        {
-            foreach (var effect in tokenData.attackEffects)
-            {
-                if (effect.effects == null || effect.effects.Count == 0) continue; // Unikamy b³êdu dla pustych list
-
-                // Sprawdzenie, czy `currentAttackEffects` zawiera ju¿ wpis dla danego kierunku
-                var existingEffect = currentAttackEffects.FirstOrDefault(e => e.direction == effect.direction);
-
-                if (existingEffect.effects != null && existingEffect.effects.Count > 0) // Jeœli istnieje, dodajemy `TokenEffect`
-                {
-                    foreach (var tokenEffect in effect.effects)
-                    {
-                        TokenEffect newTokenEffect = new TokenEffect
-                        {
-                            attackPower = tokenEffect.attackPower,
-                            isRanged = tokenEffect.isRanged,
-                            abilities = (SpecialAbility[])tokenEffect.abilities.Clone()
-                        };
-
-                        existingEffect.effects.Add(newTokenEffect);
-                    }
-                }
-                else // Jeœli nie istnieje, tworzymy nowy wpis
-                {
-                    DirectionalEffects newEffect = new DirectionalEffects
-                    {
-                        direction = effect.direction,
-                        effects = new List<TokenEffect>()
-                    };
-
-                    foreach (var tokenEffect in effect.effects)
-                    {
-                        TokenEffect newTokenEffect = new TokenEffect
-                        {
-                            attackPower = tokenEffect.attackPower,
-                            isRanged = tokenEffect.isRanged,
-                            abilities = (SpecialAbility[])tokenEffect.abilities.Clone()
-                        };
-
-                        newEffect.effects.Add(newTokenEffect);
-                    }
-
-                    currentAttackEffects.Add(newEffect);
-                }
-            }
-        }
         Debug.Log($"{tokenData.tokenName} zosta³ zainicjalizowany. Pocz¹tkowe attackEffects: " +
                $"{string.Join(" | ", currentAttackEffects.Select(e => $"Kierunek: {e.direction}, Ataki: {string.Join(", ", e.effects.Select(a => a.attackPower))}"))}");
+    }
+
+    private void InitializeCurrentEffects()
+    {
+        if (tokenData.attackEffects == null) return;
+        
+        foreach (var effect in tokenData.attackEffects)
+        {
+            if (effect.effects == null || effect.effects.Count == 0) continue; // Unika b³êdu dla pustych list
+
+            // Sprawdzenie, czy `currentAttackEffects` zawiera ju¿ wpis dla danego kierunku
+            var existingEffect = currentAttackEffects.FirstOrDefault(e => e.direction == effect.direction);
+
+            if (existingEffect.effects != null && existingEffect.effects.Count > 0) // Jeœli kierunek istnieje, to dodaje `TokenEffect`
+            {
+                foreach (var tokenEffect in effect.effects)
+                {
+                    TokenEffect newTokenEffect = new TokenEffect
+                    {
+                        attackPower = tokenEffect.attackPower,
+                        isRanged = tokenEffect.isRanged,
+                        abilities = (SpecialAbility[])tokenEffect.abilities.Clone()
+                    };
+
+                    existingEffect.effects.Add(newTokenEffect);
+                }
+            }
+            else // Jeœli nie istnieje, tworzy nowy wpis
+            {
+                DirectionalEffects newEffect = new DirectionalEffects
+                {
+                    direction = effect.direction,
+                    effects = new List<TokenEffect>()
+                };
+
+                foreach (var tokenEffect in effect.effects)
+                {
+                    TokenEffect newTokenEffect = new TokenEffect
+                    {
+                        attackPower = tokenEffect.attackPower,
+                        isRanged = tokenEffect.isRanged,
+                        abilities = (SpecialAbility[])tokenEffect.abilities.Clone()
+                    };
+
+                    newEffect.effects.Add(newTokenEffect);
+                }
+
+                currentAttackEffects.Add(newEffect);
+            }
+        }    
     }
 
     void Update()
@@ -283,11 +300,11 @@ public class Token : MonoBehaviour
         AttackDirection.UpRight
     };
 
-        // Obliczamy przesuniêcie w indeksach tablicy
+        // Oblicza przesuniêcie w indeksach tablicy
         int shift = Mathf.RoundToInt(currentRotation / 60f) % 6;
         if (shift < 0) shift += 6; // Obs³uga negatywnych k¹tów
 
-        // Znajdujemy indeks bazowego kierunku
+        // Znajduje indeks bazowego kierunku
         int baseIndex = Array.IndexOf(directions, baseDirection);
         if (baseIndex == -1) return baseDirection; // Jeœli kierunku nie znaleziono, zwróæ bazowy
 

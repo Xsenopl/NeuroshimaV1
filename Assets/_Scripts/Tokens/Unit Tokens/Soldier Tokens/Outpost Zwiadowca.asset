@@ -15,11 +15,20 @@ MonoBehaviour:
   army: Outpost
   sprite: {fileID: 2747690628134850419, guid: 28a9d74f1b03e9f4686762690b3bf40f, type: 3}
   tokenName: Zwiadowca O
-  tokenType: 0
+  tokenType: 1
   health: 1
   initiatives: 
   attackEffects: []
   moduleEffects:
   - effectType: 0
-    value: 3
+    value: 1
     direction: 0
+  - effectType: 1
+    value: 1
+    direction: 2
+  - effectType: 2
+    value: 1
+    direction: 4
+  - effectType: 3
+    value: 1
+    direction: 3
