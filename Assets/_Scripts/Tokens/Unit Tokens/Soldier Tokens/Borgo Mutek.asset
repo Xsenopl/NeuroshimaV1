@@ -17,21 +17,6 @@ MonoBehaviour:
   tokenName: Mutek
   tokenType: 0
   health: 1
-  initiatives: 01000000
-  attackEffects:
-  - direction: 0
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
-  - direction: 1
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
-  - direction: 5
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
+  initiatives: 02000000
+  directionFeatures: []
   moduleEffects: []

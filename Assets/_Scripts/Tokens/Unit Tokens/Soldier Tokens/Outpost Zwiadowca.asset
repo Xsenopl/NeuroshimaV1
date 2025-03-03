@@ -18,8 +18,8 @@ MonoBehaviour:
   tokenType: 0
   health: 1
   initiatives: 
-  attackEffects: []
+  directionFeatures: []
   moduleEffects:
   - effectType: 0
-    value: 3
+    value: 1
     direction: 0

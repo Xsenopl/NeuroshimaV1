@@ -3,16 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-//using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class Token : MonoBehaviour
 {
     public TokenData tokenData;
     public int currentHealth;
     public List<int> currentInitiatives;
-    public List<DirectionalEffects> currentAttackEffects;
+    public List<DirectionalFeatures> currentAttackEffects;
+    public Dictionary<Vector2Int, bool> neighborStatus = new Dictionary<Vector2Int, bool>(); // S¹siedztwo (hexCoords -> zajêty / pusty)
+    public Vector2Int hexCoords; // Wspó³rzêdne ¿etonu w uk³adzie heksagonalnym
+    public bool isPlaced = false;
 
-    private bool isPlaced = false;
     private bool isBeingRotated = false;
     private Vector3 initialMousePosition;
     private float currentRotation = 0f;
@@ -21,9 +22,6 @@ public class Token : MonoBehaviour
     private CircleCollider2D circleCollider;
 
     private SpriteRenderer spriteRenderer;
-
-    public Vector2Int hexCoords; // Wspó³rzêdne ¿etonu w uk³adzie heksagonalnym
-    private List<Token> neighbors = new List<Token>();
 
     private static readonly Vector2Int[] evenRowOffsets = {
         new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 1),
@@ -44,73 +42,94 @@ public class Token : MonoBehaviour
 
     private void Start()
     {
-        //UpdateNeighbors();
-        BoardManager boardManager = FindObjectOfType<BoardManager>();
-        if (boardManager != null)
-        {
-            boardManager.RegisterToken(this);
-            circleCollider = GetComponent<CircleCollider2D>();
-        }
+        //BoardManager boardManager = FindObjectOfType<BoardManager>();
+        //if (boardManager != null)
+        //{
+        //    boardManager.RegisterToken(this);
+        //    circleCollider = GetComponent<CircleCollider2D>();
+        //}
     }
 
-    public void Initialize(TokenData data)
+    public void Initialize(TokenData data, Vector2Int position, Dictionary<Vector2Int, Token> tokenGrid = null)
     {
         tokenData = data;
         spriteRenderer.sprite = data.sprite;  // Za³adowanie grafiki z ScriptableObject
+        hexCoords = position;
         currentHealth = data.health;
         currentInitiatives = new List<int>(data.initiatives);
 
-        currentAttackEffects = new List<DirectionalEffects>();
+        currentAttackEffects = new List<DirectionalFeatures>();
+        InitializeCurrentEffects();
+        InitializeNeighbors(tokenGrid);
 
-        if (tokenData.attackEffects != null) // Sprawdzenie, czy `attackEffects` istnieje
+        Debug.Log($"{tokenData.tokenName} zosta³ zainicjalizowany. Pocz¹tkowe attackEffects: " +
+               $"{string.Join(" | ", currentAttackEffects.Select(e => $"Kierunek: {e.direction}, Ataki: {string.Join(", ", e.attacks.Select(a => a.attackPower))}"))}");
+    }
+
+    private void InitializeCurrentEffects()
+    {
+        if (tokenData.directionFeatures == null) return;
+
+        foreach (var effect in tokenData.directionFeatures)
         {
-            foreach (var effect in tokenData.attackEffects)
+            if (effect.attacks == null || effect.attacks.Count == 0) continue; // Unika b³êdu dla pustych list
+
+            // Sprawdzenie, czy `currentAttackEffects` zawiera ju¿ wpis dla danego kierunku
+            var existingEffect = currentAttackEffects.FirstOrDefault(e => e.direction == effect.direction);
+
+            if (existingEffect.attacks != null && existingEffect.attacks.Count > 0) // Jeœli kierunek istnieje, to dodaje `AttackFeatures`
             {
-                if (effect.effects == null || effect.effects.Count == 0) continue; // Unikamy b³êdu dla pustych list
-
-                // Sprawdzenie, czy `currentAttackEffects` zawiera ju¿ wpis dla danego kierunku
-                var existingEffect = currentAttackEffects.FirstOrDefault(e => e.direction == effect.direction);
-
-                if (existingEffect.effects != null && existingEffect.effects.Count > 0) // Jeœli istnieje, dodajemy `TokenEffect`
+                foreach (var tokenEffect in effect.attacks)
                 {
-                    foreach (var tokenEffect in effect.effects)
+                    AttackFeatures newTokenEffect = new AttackFeatures
                     {
-                        TokenEffect newTokenEffect = new TokenEffect
-                        {
-                            attackPower = tokenEffect.attackPower,
-                            isRanged = tokenEffect.isRanged,
-                            abilities = (SpecialAbility[])tokenEffect.abilities.Clone()
-                        };
-
-                        existingEffect.effects.Add(newTokenEffect);
-                    }
-                }
-                else // Jeœli nie istnieje, tworzymy nowy wpis
-                {
-                    DirectionalEffects newEffect = new DirectionalEffects
-                    {
-                        direction = effect.direction,
-                        effects = new List<TokenEffect>()
+                        attackPower = tokenEffect.attackPower,
+                        isRanged = tokenEffect.isRanged,
+                        //abilities = (DirectionalAbility[])tokenEffect.abilities.Clone()       // Obecnie nie kopiuje abilitiesów
                     };
 
-                    foreach (var tokenEffect in effect.effects)
-                    {
-                        TokenEffect newTokenEffect = new TokenEffect
-                        {
-                            attackPower = tokenEffect.attackPower,
-                            isRanged = tokenEffect.isRanged,
-                            abilities = (SpecialAbility[])tokenEffect.abilities.Clone()
-                        };
-
-                        newEffect.effects.Add(newTokenEffect);
-                    }
-
-                    currentAttackEffects.Add(newEffect);
+                    existingEffect.attacks.Add(newTokenEffect);
                 }
             }
+            else // Jeœli nie istnieje, tworzy nowy wpis
+            {
+                DirectionalFeatures newEffect = new DirectionalFeatures
+                {
+                    direction = effect.direction,
+                    attacks = new List<AttackFeatures>()
+                };
+
+                foreach (var tokenEffect in effect.attacks)
+                {
+                    AttackFeatures newTokenEffect = new AttackFeatures
+                    {
+                        attackPower = tokenEffect.attackPower,
+                        isRanged = tokenEffect.isRanged,
+                        //abilities = (DirectionalAbility[])tokenEffect.abilities.Clone()       // Obecnie nie kopiuje abilitiesów
+                    };
+
+                    newEffect.attacks.Add(newTokenEffect);
+                }
+
+                currentAttackEffects.Add(newEffect);
+            }
         }
-        Debug.Log($"{tokenData.tokenName} zosta³ zainicjalizowany. Pocz¹tkowe attackEffects: " +
-               $"{string.Join(" | ", currentAttackEffects.Select(e => $"Kierunek: {e.direction}, Ataki: {string.Join(", ", e.effects.Select(a => a.attackPower))}"))}");
+    }
+
+    // Inicjalizacja s¹siedztwa na podstawie tokenGrid
+    public void InitializeNeighbors(Dictionary<Vector2Int, Token> tokenGrid)
+    {
+        if (tokenGrid == null) return;
+        neighborStatus.Clear();
+        Vector2Int[] offsets = (hexCoords.y % 2 == 0) ? evenRowOffsets : oddRowOffsets;
+
+        foreach (var offset in offsets)
+        {
+            Vector2Int neighborPos = hexCoords + offset;
+            bool isOccupied = tokenGrid.ContainsKey(neighborPos);
+            neighborStatus[neighborPos] = isOccupied;
+        }
+        Debug.Log($"{tokenData.name} s¹siadów: {neighborStatus.Values.Count(t =>t)}");
     }
 
     void Update()
@@ -127,9 +146,8 @@ public class Token : MonoBehaviour
                 // Klikniêto w œrodek ¿etonu -> zatwierdzamy
                 if (!isPlaced)
                 {
-                    isPlaced = true;
                     Destroy(rotationArea);
-                    Debug.Log("¯eton umieszczony.");
+                    ConfirmPlacement();
                 }
             }
             else
@@ -185,12 +203,11 @@ public class Token : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, angle);
         currentRotation = angle;
     }
-    void OnMouseDown()
+    private void OnMouseDown()
     {
         if (isPlaced)
         {
             Debug.Log("¯eton ju¿ zatwierdzony.");
-            return;
         }
     }
 
@@ -217,7 +234,7 @@ public class Token : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
         currentRotation = roundedAngle;
 
-        Debug.Log($"Obracanie zatrzymane. K¹t: {currentRotation}");
+        //Debug.Log($"Obracanie zatrzymane. K¹t: {currentRotation}");
     }
 
 
@@ -320,23 +337,25 @@ public class Token : MonoBehaviour
         }
     }
 
-    // Zapisuje ka¿dy s¹siaduj¹cy token do listy s¹siadów       --      nie dzia³a z powodu mechaniki Cofniêcia akcji
-    public void UpdateNeighbors(Dictionary<Vector2Int, Token> tokenGrid)
+    public bool CanMoveTo(Vector2Int newHexCoords)
     {
-        neighbors.Clear();
+        return isPlaced && neighborStatus.ContainsKey(newHexCoords) && !neighborStatus[newHexCoords];
+    }
+    public void ConfirmPlacement()
+    {
+        isPlaced = true;
+        Debug.Log($"¯eton {tokenData.tokenName} umieszczony na {hexCoords}");
+    }
 
-        Vector2Int[] offsets = (hexCoords.y % 2 == 0) ? evenRowOffsets : oddRowOffsets;
-
-        foreach (var offset in offsets)
+    private void HighlightAvailableMoves()
+    {
+        foreach (var neighbor in neighborStatus)
         {
-            Vector2Int neighborPos = hexCoords + offset;
-            if (tokenGrid.TryGetValue(neighborPos, out Token neighbor))
+            if (!neighbor.Value) // Jeœli pole jest puste, oznacz je jako mo¿liwe do ruchu
             {
-                neighbors.Add(neighbor);
+                Debug.Log($"Mo¿liwy ruch na: {neighbor.Key}");
             }
         }
-
-        // Debug.Log($"¯eton na {hexCoords} ma {neighbors.Count} s¹siadów.");
     }
 
     public void TakeDamage(int damage)
@@ -346,6 +365,11 @@ public class Token : MonoBehaviour
         {
             // Debug.Log($"{tokenData.tokenName} ma 0  hp.");
         }
+    }
+
+    public static explicit operator Token(GameObject v)
+    {
+        throw new NotImplementedException();
     }
 
     //private void OnDrawGizmos()

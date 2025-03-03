@@ -15,23 +15,8 @@ MonoBehaviour:
   army: Borgo
   sprite: {fileID: 2747690628134850419, guid: 6b391bd0cc29f2643ab656be289517e3, type: 3}
   tokenName: Oficer
-  tokenType: 0
+  tokenType: 1
   health: 1
-  initiatives: 01000000
-  attackEffects:
-  - direction: 0
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
-  - direction: 1
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
-  - direction: 5
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
+  initiatives: 
+  directionFeatures: []
   moduleEffects: []

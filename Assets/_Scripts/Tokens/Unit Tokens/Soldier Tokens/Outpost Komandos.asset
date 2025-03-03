@@ -17,11 +17,6 @@ MonoBehaviour:
   tokenName: Komandos
   tokenType: 0
   health: 1
-  initiatives: 03000000020000000100000000000000
-  attackEffects:
-  - direction: 2
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 1
+  initiatives: 03000000
+  directionFeatures: []
   moduleEffects: []

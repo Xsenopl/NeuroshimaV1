@@ -18,35 +18,11 @@ MonoBehaviour:
   tokenType: 2
   health: 20
   initiatives: 00000000
-  attackEffects:
+  directionFeatures:
   - direction: 0
-    effects:
-    - abilities: 
-      attackPower: 1
+    attacks:
+    - attackPower: 1
       isRanged: 1
-  - direction: 1
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 1
-  - direction: 2
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 1
-  - direction: 3
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 1
-  - direction: 4
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 1
-  - direction: 5
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 1
+    abilities: 04000000
+  tokenFeatures: 00000000
   moduleEffects: []
