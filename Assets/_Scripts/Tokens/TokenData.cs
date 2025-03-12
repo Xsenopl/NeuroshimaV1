@@ -12,7 +12,7 @@ public class TokenData : ScriptableObject
     public int health;
     public List<int> initiatives;
     public List<DirectionalFeatures> directionFeatures; // Lista efektów ataku i umiejêtnoœci wed³ug kierunku
-    public List<TokenFeatures> tokenFeatures;
+    public List<Features> tokenFeatures;
     public List<ModuleEffect> moduleEffects;
 }
 
@@ -21,15 +21,7 @@ public enum AttackDirection { Up, UpRight, DownRight, Down, DownLeft, UpLeft }
 public enum DirectionalAbility { Armor, Net, Sniper }
 public enum TokenFeatures { Moving, Push }
 
-// Struktura przechowuj¹ca informacje o efektach w danym kierunku
-[System.Serializable]
-public struct AttackFeatures
-{ 
-    public int attackPower; // Si³a ataku (0 to brak ataku)
-    public bool isRanged; // Czy jest to atak dystansowy?
-}
-
-// Struktura przechowuj¹ca efekty dla danego kierunku
+// Struktura przechowuj¹ca umiejêtnoœci dla danego kierunku
 [System.Serializable]
 public struct DirectionalFeatures
 {
@@ -38,6 +30,23 @@ public struct DirectionalFeatures
     public DirectionalAbility[] abilities; // Lista zdolnoœci kierunkowych
 }
 
+// Struktura przechowuj¹ca informacje o ataku
+[System.Serializable]
+public struct AttackFeatures
+{ 
+    public int attackPower; // Si³a ataku (0 to brak ataku)
+    public bool isRanged; // Czy jest to atak dystansowy?
+}
+
+// Struktura przechowuj¹ca cechy jednostek
+[System.Serializable]
+public struct Features
+{
+    public TokenFeatures feature;
+    public int quantity;
+}
+
+// Struktura przechowuj¹ca efekty modu³ów dla danego kierunku
 [System.Serializable]
 public struct ModuleEffect
 {

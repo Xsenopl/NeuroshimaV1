@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.U2D;
 
 public class Token : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class Token : MonoBehaviour
     public int currentHealth;
     public List<int> currentInitiatives;
     public List<DirectionalFeatures> currentAttackEffects;
+    public List<Features> currentFeatures = new List<Features>();
     public Dictionary<Vector2Int, bool> neighborStatus = new Dictionary<Vector2Int, bool>(); // S¹siedztwo (hexCoords -> zajêty / pusty)
     public Vector2Int hexCoords; // Wspó³rzêdne ¿etonu w uk³adzie heksagonalnym
     public bool isPlaced = false;
@@ -40,15 +42,8 @@ public class Token : MonoBehaviour
         circleCollider = GetComponent<CircleCollider2D>();
     }
 
-    private void Start()
-    {
-        //BoardManager boardManager = FindObjectOfType<BoardManager>();
-        //if (boardManager != null)
-        //{
-        //    boardManager.RegisterToken(this);
-        //    circleCollider = GetComponent<CircleCollider2D>();
-        //}
-    }
+    void Start()
+    { }
 
     public void Initialize(TokenData data, Vector2Int position, Dictionary<Vector2Int, Token> tokenGrid = null)
     {
@@ -60,6 +55,7 @@ public class Token : MonoBehaviour
 
         currentAttackEffects = new List<DirectionalFeatures>();
         InitializeCurrentEffects();
+        InitializeCurrentFeatures();
         InitializeNeighbors(tokenGrid);
 
         Debug.Log($"{tokenData.tokenName} zosta³ zainicjalizowany. Pocz¹tkowe attackEffects: " +
@@ -85,7 +81,6 @@ public class Token : MonoBehaviour
                     {
                         attackPower = tokenEffect.attackPower,
                         isRanged = tokenEffect.isRanged,
-                        //abilities = (DirectionalAbility[])tokenEffect.abilities.Clone()       // Obecnie nie kopiuje abilitiesów
                     };
 
                     existingEffect.attacks.Add(newTokenEffect);
@@ -105,7 +100,6 @@ public class Token : MonoBehaviour
                     {
                         attackPower = tokenEffect.attackPower,
                         isRanged = tokenEffect.isRanged,
-                        //abilities = (DirectionalAbility[])tokenEffect.abilities.Clone()       // Obecnie nie kopiuje abilitiesów
                     };
 
                     newEffect.attacks.Add(newTokenEffect);
@@ -116,10 +110,23 @@ public class Token : MonoBehaviour
         }
     }
 
+    public void InitializeCurrentFeatures()
+    {
+        currentFeatures.Clear();
+        foreach (var feature in tokenData.tokenFeatures)
+        {
+            currentFeatures.Add(new Features
+            {
+                feature = feature.feature,
+                quantity = feature.quantity
+            });
+        }
+    }
+
     // Inicjalizacja s¹siedztwa na podstawie tokenGrid
     public void InitializeNeighbors(Dictionary<Vector2Int, Token> tokenGrid)
     {
-        if (tokenGrid == null) return;
+        if (tokenGrid == null) { Debug.Log("nie ma przyjació³"); return; }
         neighborStatus.Clear();
         Vector2Int[] offsets = (hexCoords.y % 2 == 0) ? evenRowOffsets : oddRowOffsets;
 
@@ -139,6 +146,7 @@ public class Token : MonoBehaviour
         Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPosition.z = 0;
 
+        
         if (Input.GetMouseButtonDown(0)) // Klikniêcie myszk¹
         {
             if (circleCollider.OverlapPoint(mouseWorldPosition))
@@ -172,8 +180,7 @@ public class Token : MonoBehaviour
 
         if (isBeingRotated && !isPlaced)
         {
-            //RotateTokenWithMouse();
-            RotateTokenWithMouse2();
+            RotateTokenWithMouse();
         }
     }
 
@@ -190,12 +197,12 @@ public class Token : MonoBehaviour
 
 
     // Próby rotowania globalnego
-    void RotateTokenWithMouse2()
+    void RotateTokenWithMouse()
     {
         Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPosition.z = 0;
 
-        // Oblicz k¹t miêdzy myszk¹ a œrodkiem ¿etonu
+        // Oblicza k¹t miêdzy myszk¹ a œrodkiem ¿etonu
         Vector3 direction = mouseWorldPosition - transform.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
@@ -220,7 +227,13 @@ public class Token : MonoBehaviour
         }
     }
 
-    public void StartRotation(Vector3 mousePosition)
+    public void StartRotationMode()
+    {
+        Debug.Log($"{tokenData.tokenName} jest w trybie rotacji.");
+    }
+
+
+    public void StartRotation(Vector3 mousePosition)    //Tylko RotationArea
     {
         initialMousePosition = mousePosition;
         isBeingRotated = true;
@@ -237,7 +250,7 @@ public class Token : MonoBehaviour
         //Debug.Log($"Obracanie zatrzymane. K¹t: {currentRotation}");
     }
 
-
+/* Stara wersja rotowania ¿etonem
     public void StartRotationPREW(Vector3 mousePosition)
     {
         if (!isPlaced)
@@ -268,7 +281,7 @@ public class Token : MonoBehaviour
         Debug.Log($"Obracanie zatrzymane. Zaokr¹glony k¹t: {roundedAngle}");
     }
 
-    void RotateTokenWithMouse()
+    void RotateTokenWithMousePREW()
     {
         //Vector3 mouseDelta = Input.mousePosition - initialMousePosition;
         //float angle = Mathf.Atan2(mouseDelta.y, mouseDelta.x) * Mathf.Rad2Deg;
@@ -288,6 +301,29 @@ public class Token : MonoBehaviour
         // Aktualizacja k¹ta
         transform.rotation = Quaternion.Euler(0, 0, currentRotation + angleDelta);
     }
+
+    void OnMouseDownPREV()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+        if (hit.collider != null && hit.collider.gameObject == gameObject)
+        {
+            //if (isPlaced)
+            //{
+            //    Debug.Log("¯eton zatwierdzony.");
+            //    Destroy(rotationArea);  // Usuniêcie pola do obracania
+            //}
+            //else
+            //{
+            //    isPlaced = true;
+            //    Debug.Log("¯eton gotowy do zatwierdzenia. Kliknij ponownie, aby umieœciæ go na sta³e.");
+            //}
+            this.isPlaced = true;
+            Debug.Log("¯eton zatwierdzony.");
+            Destroy(rotationArea);  // Usuniêcie pola do obracania
+        }
+    }
+*/
 
     public AttackDirection GetRotatedDirection(AttackDirection baseDirection)
     {
@@ -315,47 +351,47 @@ public class Token : MonoBehaviour
         return directions[newIndex];
     }
 
-    void OnMouseDownPREV()
+    public bool CanMove()
     {
-        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
-        if (hit.collider != null && hit.collider.gameObject == gameObject)
-        {
-            //if (isPlaced)
-            //{
-            //    Debug.Log("¯eton zatwierdzony.");
-            //    Destroy(rotationArea);  // Usuniêcie pola do obracania
-            //}
-            //else
-            //{
-            //    isPlaced = true;
-            //    Debug.Log("¯eton gotowy do zatwierdzenia. Kliknij ponownie, aby umieœciæ go na sta³e.");
-            //}
-            this.isPlaced = true;
-            Debug.Log("¯eton zatwierdzony.");
-            Destroy(rotationArea);  // Usuniêcie pola do obracania
-        }
+        Features moveFeature = currentFeatures.Find(f => f.feature == TokenFeatures.Moving);
+        return moveFeature.quantity > 0;
     }
-
     public bool CanMoveTo(Vector2Int newHexCoords)
     {
         return isPlaced && neighborStatus.ContainsKey(newHexCoords) && !neighborStatus[newHexCoords];
     }
+
+    // Zmniejsza liczbê ruchów po przemieszczeniu
+    public void UseMove()
+    {
+        int index = currentFeatures.FindIndex(f => f.feature == TokenFeatures.Moving);
+        if (index >= 0)
+        {
+            currentFeatures[index] = new Features
+            {
+                feature = TokenFeatures.Moving,
+                quantity = Mathf.Max(0, currentFeatures[index].quantity - 1)
+            };
+        }
+    }
+    // Resetuje liczbê ruchów
+    public void ResetMoves()
+    {
+        int index = currentFeatures.FindIndex(f => f.feature == TokenFeatures.Moving);
+        if (index >= 0)
+        {
+            currentFeatures[index] = new Features
+            {
+                feature = TokenFeatures.Moving,
+                quantity = tokenData.tokenFeatures[index].quantity
+            };
+        }
+    }
+
     public void ConfirmPlacement()
     {
         isPlaced = true;
         Debug.Log($"¯eton {tokenData.tokenName} umieszczony na {hexCoords}");
-    }
-
-    private void HighlightAvailableMoves()
-    {
-        foreach (var neighbor in neighborStatus)
-        {
-            if (!neighbor.Value) // Jeœli pole jest puste, oznacz je jako mo¿liwe do ruchu
-            {
-                Debug.Log($"Mo¿liwy ruch na: {neighbor.Key}");
-            }
-        }
     }
 
     public void TakeDamage(int damage)

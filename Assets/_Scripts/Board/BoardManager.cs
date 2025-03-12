@@ -27,8 +27,8 @@ public class BoardManager : MonoBehaviour
     public Tilemap tilemap;  // Tilemapa reprezentuj¹ca planszê
     public GameObject tokenPrefab;
     public TokenSlotManager tokenManager;
-    public Dictionary<Vector2Int, Token> tokenGrid = new Dictionary<Vector2Int, Token>();
-    private Dictionary<Vector3Int, GameObject> occupiedTiles = new Dictionary<Vector3Int, GameObject>();  // Zajête heksy
+    public PanelConfirmationController panelConfirmationController;
+    public Dictionary<Vector2Int, Token> tokenGrid = new Dictionary<Vector2Int, Token>(); // Zajête heksy
 
     public Token selectedTokenForMove = null;
     private Stack<ActionData> actionStack = new Stack<ActionData>();
@@ -85,30 +85,27 @@ public class BoardManager : MonoBehaviour
 
         if (!tilemap.HasTile(hexPosition)) return; //Poza plansz¹
 
-        if (occupiedTiles.ContainsKey(hexPosition))  // Sprawdzenie, czy heks jest zajêty
-        {
-            //Debug.Log("To pole jest ju¿ zajête!");
-            //return;
-        }
-
-
+        // Jeœli wybrano ¿eton do ruchu, ale klikniêto w inne pole – przesuñ go
         if (selectedTokenForMove != null)
         {
-            Debug.LogWarning("Pierwszy If");
+            Debug.LogWarning("¯eton w trakcie ruchu");
             if (selectedTokenForMove.CanMoveTo(hexCoords))
             {
-                Debug.LogWarning("Pó³tora If");
+                Debug.LogWarning("Mo¿e siê ruszyæ na to pole");
                 MoveToken(selectedTokenForMove, hexCoords);
             }
             selectedTokenForMove = null; // Reset wyboru po ruchu
             return;
         }
+        // Jeœli klikniêto ¿eton z Features – ustaw go jako aktywny do ruchu
         if (tokenGrid.TryGetValue(hexCoords, out Token clickedToken))
         {
-            if (clickedToken.isPlaced && clickedToken.tokenData.tokenFeatures.Contains(TokenFeatures.Moving))
+            if (clickedToken.isPlaced && clickedToken.tokenData.tokenFeatures.Count > 0)
             {
-                selectedTokenForMove = clickedToken;
-                Debug.Log($"Wybrano {clickedToken.tokenData.tokenName} do ruchu.");
+                panelConfirmationController.ShowPanel(
+                    () => ConfirmTokenSelection(clickedToken),
+                    () => Debug.Log($"Anulowano wybór {clickedToken.tokenData.tokenName}")
+                );
             }
         }
 
@@ -125,32 +122,40 @@ public class BoardManager : MonoBehaviour
         tokenManager.ClearSelectedToken();
     }
 
-    // Umieszczanie ¿etonu na heksie
-    public void PlaceToken(Vector3Int hexPosition, TokenData tokenData, Vector3Int? previousPosition = null)
+    public Token InstantiateToken(Vector3Int hexPosition)
     {
         Vector3 spawnPosition = HexToWorld(hexPosition);
         GameObject newTokenObj = Instantiate(tokenPrefab, spawnPosition, Quaternion.identity);
         Token newToken = newTokenObj.GetComponent<Token>();
+        return newToken;
+    }
+
+    // Umieszczanie ¿etonu na heksie
+    public void PlaceToken(Vector3Int hexPosition, TokenData tokenData, float? previousRotation = null)
+    {
+        Token newToken = InstantiateToken(hexPosition);
         Vector2Int hexCords = (Vector2Int)hexPosition;
         tokenGrid[hexCords] = newToken;
-        newToken.Initialize(tokenData, (Vector2Int)hexPosition, tokenGrid);
-        newToken.InitializeRotationArea();
-        
-        occupiedTiles.Add(hexPosition, newTokenObj);
+        newToken.Initialize(tokenData, hexCords, tokenGrid);
+
+        if (previousRotation.HasValue)
+        {
+            newToken.transform.rotation = Quaternion.Euler(0, 0, previousRotation.Value);
+            newToken.ConfirmPlacement(); // ¯eton jest od razu zatwierdzony
+        }
+        else
+        {
+            newToken.InitializeRotationArea();
+        }
 
         Image originalSlot = FindSlotByToken(tokenData);
 
         if (!isUndoing)
         {
-            if (originalSlot != null)
+            if (originalSlot != null)   // Jeœli ¿eton jest wziêty ze slotu
             {
                 AddActionToStack(new ActionData(tokenData, hexPosition, originalSlot));
                 originalSlot.GetComponent<Slot>().ClearSlot();
-            }
-            else if (previousPosition.HasValue) // Jeœli ¿eton siê przemieszcza
-            {
-                Debug.Log("Jako akcja ruchu");
-                AddActionToStack(new ActionData(tokenData, hexPosition, previousPosition.Value));
             }
             else { Debug.Log("Cofniêcia dla PlaceToken nie dodano"); }
         }
@@ -159,7 +164,31 @@ public class BoardManager : MonoBehaviour
 
         tokenManager.trashSlotImage.SetActive(false);
     }
- 
+
+    public void PlaceTokenMove(Vector3Int hexPosition, Token existingToken)
+    {
+        Vector3 spawnPosition = HexToWorld(hexPosition);
+
+        Debug.Log(spawnPosition);
+
+        // Przenosi istniej¹cy obiekt ¿etonu (zamiast tworzyæ nowy)
+        existingToken.transform.position = spawnPosition;
+        Vector2Int hexCoords = (Vector2Int)hexPosition;
+
+        // Aktualizuje pozycjê w siatce tokenów
+        tokenGrid[hexCoords] = existingToken;
+        existingToken.hexCoords = hexCoords;
+
+        existingToken.InitializeNeighbors(tokenGrid);
+        existingToken.InitializeRotationArea();
+        existingToken.isPlaced = false;
+
+        // Aktualizuje s¹siedztwo po ruchu
+        UpdateNeighbors(hexCoords);
+
+        Debug.Log($"¯eton {existingToken.tokenData.tokenName} zosta³ przeniesiony na {hexPosition} bez resetowania jego wartoœci.");
+    }
+
     public void RemoveToken(Token token)
     {
         if (token == null) return;
@@ -168,7 +197,6 @@ public class BoardManager : MonoBehaviour
         if (tokenGrid.ContainsKey(token.hexCoords))
         {
             tokenGrid.Remove(token.hexCoords); // Usuniêcie z mapy tokenów
-            occupiedTiles.Remove((Vector3Int)token.hexCoords);
         }
 
         // Zniszczenie obiektu w œwiecie gry
@@ -176,6 +204,23 @@ public class BoardManager : MonoBehaviour
         {
             UpdateNeighbors(token.hexCoords);
             Destroy(token.gameObject);
+        }
+    }
+    public void DetachToken(Token token)
+    {
+        if (token == null) return;
+
+        // Sprawdzenie, czy ¿eton nadal istnieje w `tokenGrid`
+        if (tokenGrid.ContainsKey(token.hexCoords))
+        {
+            tokenGrid.Remove(token.hexCoords); // Usuniêcie z mapy tokenów
+        }
+
+        // Zniszczenie obiektu w œwiecie gry
+        if (token.gameObject != null)
+        {
+            UpdateNeighbors(token.hexCoords);
+            //Destroy(token.gameObject);
         }
     }
 
@@ -190,15 +235,6 @@ public class BoardManager : MonoBehaviour
                 return slot;
 
         return null;
-    }
-
-    // Zapisuje tokeny do tokenGrid
-    public void RegisterToken(Token token)//, Vector2Int hexCoords
-    {
-        Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3Int hexCoords = WorldToHex(worldPosition);
-        token.hexCoords = (Vector2Int)hexCoords;
-        tokenGrid[(Vector2Int)hexCoords] = token;
     }
 
     public void UpdateNeighbors(Vector2Int changedHex)
@@ -225,64 +261,61 @@ public class BoardManager : MonoBehaviour
 
         ActionData lastAction = actionStack.Pop();
 
-        if (lastAction.previousPosition.HasValue) // Cofanie ruchu ¿etonu na planszy
+        // Cofanie ruchu ¿etonu na planszy (poprzez stworzenie nowego obiektu na starym miejscu)
+        if (lastAction.previousPosition.HasValue) 
+        {
+            isUndoing = true;
+            if (tokenGrid.TryGetValue((Vector2Int)lastAction.position, out Token token))
             {
-                if (tokenGrid.TryGetValue((Vector2Int)lastAction.position, out Token token))
-                {
-                    Debug.Log($"Cofniêcie ruchu: {token.tokenData.tokenName} wraca na {lastAction.previousPosition}");
+                Debug.Log($"Cofniêcie ruchu: {token.tokenData.tokenName} wraca na {lastAction.previousPosition}");
 
-                    isUndoing = true;
-                    MoveToken(token, (Vector2Int)lastAction.previousPosition);
-                    isUndoing = false;
-                }
+                RemoveToken(token);
+                //PlaceToken((Vector3Int)lastAction.previousPosition.Value, token.tokenData, lastAction.previousRotation);
+                //PlaceTokenMove((Vector3Int)lastAction.previousPosition.Value, lastAction.position);
+                //isUndoing = false;
             }
-        //else if (lastAction.position != Vector3Int.zero) // Cofanie ¿etonu z planszy
-        //{
-        //    // Usuwa ¿eton z planszy
-        //    if (tokenGrid.TryGetValue((Vector2Int)lastAction.position, out Token tokenObject))
-        //    {
-        //        //Destroy(tokenObject);
-        //        //occupiedTiles.Remove(lastAction.position);
-        //        //tokenGrid.Remove((Vector2Int)lastAction.position);
+            PlaceToken((Vector3Int)lastAction.previousPosition.Value, lastAction.tokenData, lastAction.previousRotation);
 
-        //        RemoveToken(tokenObject.GetComponent<Token>());
-        //    }
+            Vector2Int hexCoords = (Vector2Int)lastAction.previousPosition;
+            Token newToken = tokenGrid[hexCoords];
 
+            newToken.tokenData = lastAction.tokenData;
+            newToken.hexCoords = hexCoords;
+            newToken.currentHealth = lastAction.previousHealth;
+            newToken.currentFeatures = new List<Features>(lastAction.previousFeatures);
+            newToken.transform.rotation = Quaternion.Euler(0, 0, lastAction.previousRotation.Value);
+            newToken.ConfirmPlacement();
 
-        //    // Przywracam ¿eton do jego oryginalnego slotu
-        //    lastAction.originalSlot.sprite = lastAction.token.sprite;
-        //    lastAction.originalSlot.gameObject.name = lastAction.token.tokenName;
-        //    lastAction.originalSlot.GetComponent<Slot>().assignedToken = lastAction.token;
-
-        //    Debug.Log($"Cofniêto akcjê: {lastAction.token.tokenName} wróci³ do slotu.");
-        //}
-        else if (lastAction.originalSlot != null) // Cofanie ¿etonu do slotu
+            isUndoing = false;
+        }
+        // Cofanie ¿etonu do slotu
+        else if (lastAction.originalSlot != null) 
         {
             List<Image> slots = (CurrentPlayer == 1) ? tokenManager.player1Slots : tokenManager.player2Slots;
             Image emptySlot = slots.FirstOrDefault(s => s.sprite == null);
 
             if (emptySlot != null)
             {
-                emptySlot.sprite = lastAction.token.sprite;
-                emptySlot.gameObject.name = lastAction.token.tokenName;
-                emptySlot.GetComponent<Slot>().assignedToken = lastAction.token;
+                emptySlot.sprite = lastAction.tokenData.sprite;
+                emptySlot.gameObject.name = lastAction.tokenData.tokenName;
+                emptySlot.GetComponent<Slot>().assignedToken = lastAction.tokenData;
 
-                Debug.Log($"Cofniêto pobranie ¿etonu: {lastAction.token.tokenName}");
+                Debug.Log($"Cofniêto pobranie ¿etonu: {lastAction.tokenData.tokenName}");
 
                 if(!lastAction.position.HasValue)
                 {
                     // Usuniêcie ¿etonu z cmentarza
-                    int ownerPlayer = GetTokenOwner(lastAction.token.army);
+                    int ownerPlayer = GetTokenOwner(lastAction.tokenData.army);
                     StatsManager statsManager = FindObjectOfType<StatsManager>();
-                    if (statsManager != null) { statsManager.RemoveFromGraveyard(lastAction.token, ownerPlayer); }
-                    Debug.Log($"Cofniêto odrzucony ¿eton: {lastAction.token.tokenName}");
+                    if (statsManager != null) { statsManager.RemoveFromGraveyard(lastAction.tokenData, ownerPlayer); }
+                    Debug.Log($"Cofniêto odrzucony ¿eton: {lastAction.tokenData.tokenName}");
                 }
 
                 // Usuniêcie ¿etonu z planszy
                 else if(tokenGrid.TryGetValue((Vector2Int)lastAction.position, out Token token))
                 {
                     RemoveToken(token);
-                    Debug.Log($"Cofniêto akcjê: {lastAction.token.tokenName} wróci³ do slotu.");
+                    Debug.Log($"Cofniêto akcjê: {lastAction.tokenData.tokenName} wróci³ do slotu.");
                 }
             }
             else
@@ -292,31 +325,7 @@ public class BoardManager : MonoBehaviour
         }
         else // Cofanie odrzuconego ¿etonu
         {
-            List<Image> slots = (CurrentPlayer == 1) ? tokenManager.player1Slots : tokenManager.player2Slots;
-            Image emptySlot = slots.FirstOrDefault(s => s.sprite == null);
-
-            if (emptySlot != null)
-            {
-                emptySlot.sprite = lastAction.token.sprite;
-                emptySlot.gameObject.name = lastAction.token.tokenName;
-                emptySlot.GetComponent<Slot>().assignedToken = lastAction.token;
-
-                Debug.Log($"Cofniêto odrzucony ¿eton: {lastAction.token.tokenName}");
-
-                // Usuniêcie ¿etonu z cmentarza
-                int ownerPlayer = GetTokenOwner(lastAction.token.army);
-                StatsManager statsManager = FindObjectOfType<StatsManager>();
-                if (statsManager != null) { statsManager.RemoveFromGraveyard(lastAction.token, ownerPlayer); }           
-
-                if (tokenManager.HasThreeTokens())
-                {
-                    Debug.Log("Gracz ma 3 ¿etony. Musi odrzuciæ jeden.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("Brak wolnych slotów do przywrócenia ¿etonu.");
-            }
+            Debug.LogWarning("Trzecia opcja cofania");
         }
     }
 
@@ -345,6 +354,13 @@ public class BoardManager : MonoBehaviour
     public void AddActionToStack(ActionData action)
     {
         actionStack.Push(action);
+    }
+
+    // Akcja zatwierdzaj¹ca wybór ¿etonu (na razie tylko do ruchu) do ruchu
+    private void ConfirmTokenSelection(Token token)
+    {
+        selectedTokenForMove = token;
+        Debug.Log($"Zatwierdzono wybór {token.tokenData.tokenName}.");
     }
 
     public int GetTokenOwner(string army)
@@ -378,13 +394,26 @@ public class BoardManager : MonoBehaviour
     public void MoveToken(Token token, Vector2Int newHexCoords)
     {
         if (!tokenGrid.ContainsKey(token.hexCoords)) return; // Jeœli ¿eton nie istnieje w siatce, przerwij
+        if (!token.CanMove()) return;   // Jeœli ¿eton nie ma ruchów, przerwij
 
         Vector2Int oldCoords = token.hexCoords;
+        float oldRotation = token.transform.rotation.eulerAngles.z;
 
-        RemoveToken(token);
+        DetachToken(token);
         token.hexCoords = newHexCoords;
         tokenGrid[newHexCoords] = token;
-        PlaceToken((Vector3Int)newHexCoords, token.tokenData, (Vector3Int)oldCoords);
+
+        PlaceTokenMove((Vector3Int)newHexCoords, token);
+
+        AddActionToStack(new ActionData(token, (Vector3Int)oldCoords, oldRotation));
+        token.UseMove();
+
+        //if (!isUndoing)
+        //{
+        //    PlaceToken((Vector3Int)newHexCoords, token.tokenData);
+        //    AddActionToStack(new ActionData(token.tokenData, (Vector3Int)newHexCoords, (Vector3Int)oldCoords, oldRotation));
+        //}
+        //else { PlaceToken((Vector3Int)newHexCoords, token.tokenData, oldRotation); }
 
         Debug.Log($"¯eton {token.tokenData.tokenName} przesuniêty z {oldCoords} na {newHexCoords}");
     }
@@ -392,6 +421,10 @@ public class BoardManager : MonoBehaviour
     private void OnTurnChanged()
     {
         Debug.Log($"Tura Gracza {CurrentPlayer}");
+        foreach (var token in tokenGrid.Values)
+        {
+            token.ResetMoves();
+        }
         //tokenManager.DrawTokens();
         tokenManager.UpdatePanelInteractivity();
         actionStack.Clear();
