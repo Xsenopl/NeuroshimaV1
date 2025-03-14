@@ -52,7 +52,8 @@ public struct ModuleEffect
 {
     public ModuleEffectType effectType; // Typ efektu modu³u
     public int value;                   // Wartoœæ efektu (np. +1 do obra¿eñ, +1 inicjatywa)
-    public AttackDirection direction;   // Kierunek
+    public List<AttackDirection> directions;   // Kierunki
+    public bool enemyTarger;
 }
 
 public enum ModuleEffectType

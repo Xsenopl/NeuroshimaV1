@@ -19,4 +19,9 @@ MonoBehaviour:
   health: 1
   initiatives: 
   directionFeatures: []
-  moduleEffects: []
+  tokenFeatures: []
+  moduleEffects:
+  - effectType: 0
+    value: 1
+    directions: 000000000100000005000000
+    enemyTarger: 0

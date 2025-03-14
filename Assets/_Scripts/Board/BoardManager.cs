@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting.Antlr3.Runtime;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 
 public class BoardManager : MonoBehaviour
@@ -100,7 +102,7 @@ public class BoardManager : MonoBehaviour
         // Jeœli klikniêto ¿eton z Features – ustaw go jako aktywny do ruchu
         if (tokenGrid.TryGetValue(hexCoords, out Token clickedToken))
         {
-            if (clickedToken.isPlaced && clickedToken.tokenData.tokenFeatures.Count > 0)
+            if (clickedToken.isPlaced && clickedToken.currentFeatures.Count > 0)
             {
                 panelConfirmationController.ShowPanel(
                     () => ConfirmTokenSelection(clickedToken),
@@ -141,12 +143,18 @@ public class BoardManager : MonoBehaviour
         if (previousRotation.HasValue)
         {
             newToken.transform.rotation = Quaternion.Euler(0, 0, previousRotation.Value);
+            newToken.currentRotation = previousRotation.Value;
+            Debug.Log($"Rotacja 1 {newToken.transform.rotation} i current to: {newToken.currentRotation}");
             newToken.ConfirmPlacement(); // ¯eton jest od razu zatwierdzony
         }
         else
         {
             newToken.InitializeRotationArea();
         }
+
+        // Dodanie efektu modu³u, dla tej jednostki 
+        List<Vector2Int> activeNeighbors = newToken.GetNeighborPositions();
+        SetModuleEffectsForThis(newToken.hexCoords, activeNeighbors, true);
 
         Image originalSlot = FindSlotByToken(tokenData);
 
@@ -160,7 +168,7 @@ public class BoardManager : MonoBehaviour
             else { Debug.Log("Cofniêcia dla PlaceToken nie dodano"); }
         }
 
-        UpdateNeighbors((Vector2Int)hexPosition); // Aktualizacja s¹siedztwa
+        UpdateNeighbors((Vector2Int)hexPosition); // Aktualizacja s¹siedztwa u s¹siadów
 
         tokenManager.trashSlotImage.SetActive(false);
     }
@@ -196,6 +204,11 @@ public class BoardManager : MonoBehaviour
         // Sprawdzenie, czy ¿eton nadal istnieje w `tokenGrid`
         if (tokenGrid.ContainsKey(token.hexCoords))
         {
+            SetModuleEffectsForAll(token, false);
+            // Usuniêcie efektu modu³u, dla tej jednostki 
+            List<Vector2Int> activeNeighbors = token.GetNeighborPositions();
+            SetModuleEffectsForThis(token.hexCoords, activeNeighbors, false);
+
             tokenGrid.Remove(token.hexCoords); // Usuniêcie z mapy tokenów
         }
 
@@ -213,14 +226,18 @@ public class BoardManager : MonoBehaviour
         // Sprawdzenie, czy ¿eton nadal istnieje w `tokenGrid`
         if (tokenGrid.ContainsKey(token.hexCoords))
         {
+            SetModuleEffectsForAll(token, false);
+            // Usuniêcie efektu modu³u, dla tej jednostki 
+            List<Vector2Int> activeNeighbors = token.GetNeighborPositions();
+            SetModuleEffectsForThis(token.hexCoords, activeNeighbors, false);
+
             tokenGrid.Remove(token.hexCoords); // Usuniêcie z mapy tokenów
         }
 
-        // Zniszczenie obiektu w œwiecie gry
+        // Bez zniszczenia obiektu w œwiecie gry
         if (token.gameObject != null)
         {
             UpdateNeighbors(token.hexCoords);
-            //Destroy(token.gameObject);
         }
     }
 
@@ -270,9 +287,6 @@ public class BoardManager : MonoBehaviour
                 Debug.Log($"Cofniêcie ruchu: {token.tokenData.tokenName} wraca na {lastAction.previousPosition}");
 
                 RemoveToken(token);
-                //PlaceToken((Vector3Int)lastAction.previousPosition.Value, token.tokenData, lastAction.previousRotation);
-                //PlaceTokenMove((Vector3Int)lastAction.previousPosition.Value, lastAction.position);
-                //isUndoing = false;
             }
             PlaceToken((Vector3Int)lastAction.previousPosition.Value, lastAction.tokenData, lastAction.previousRotation);
 
@@ -284,7 +298,10 @@ public class BoardManager : MonoBehaviour
             newToken.currentHealth = lastAction.previousHealth;
             newToken.currentFeatures = new List<Features>(lastAction.previousFeatures);
             newToken.transform.rotation = Quaternion.Euler(0, 0, lastAction.previousRotation.Value);
-            newToken.ConfirmPlacement();
+            // Dodanie efektu modu³u, dla tej jednostki 
+            List<Vector2Int> activeNeighbors = newToken.GetNeighborPositions();
+            SetModuleEffectsForThis(newToken.hexCoords, activeNeighbors, true);
+            Debug.Log($"Rotacja 2 {newToken.transform.rotation}");
 
             isUndoing = false;
         }
@@ -323,7 +340,7 @@ public class BoardManager : MonoBehaviour
                 Debug.LogWarning("Brak wolnych slotów do przywrócenia ¿etonu.");
             }
         }
-        else // Cofanie odrzuconego ¿etonu
+        else
         {
             Debug.LogWarning("Trzecia opcja cofania");
         }
@@ -399,6 +416,8 @@ public class BoardManager : MonoBehaviour
         Vector2Int oldCoords = token.hexCoords;
         float oldRotation = token.transform.rotation.eulerAngles.z;
 
+        Debug.Log($"Stara rotacja: {oldRotation}");
+
         DetachToken(token);
         token.hexCoords = newHexCoords;
         tokenGrid[newHexCoords] = token;
@@ -406,14 +425,12 @@ public class BoardManager : MonoBehaviour
         PlaceTokenMove((Vector3Int)newHexCoords, token);
 
         AddActionToStack(new ActionData(token, (Vector3Int)oldCoords, oldRotation));
-        token.UseMove();
 
-        //if (!isUndoing)
-        //{
-        //    PlaceToken((Vector3Int)newHexCoords, token.tokenData);
-        //    AddActionToStack(new ActionData(token.tokenData, (Vector3Int)newHexCoords, (Vector3Int)oldCoords, oldRotation));
-        //}
-        //else { PlaceToken((Vector3Int)newHexCoords, token.tokenData, oldRotation); }
+        token.UseMove();
+        // Dodanie efektu modu³u, dla tej jednostki 
+        List<Vector2Int> activeNeighbors = token.GetNeighborPositions();
+        SetModuleEffectsForThis(token.hexCoords, activeNeighbors, true);
+
 
         Debug.Log($"¯eton {token.tokenData.tokenName} przesuniêty z {oldCoords} na {newHexCoords}");
     }
@@ -430,35 +447,166 @@ public class BoardManager : MonoBehaviour
         actionStack.Clear();
     }
 
-}
+    //_______________MODU£Y__________________
 
-
-/*
- // ________________Prace nad modu³ami________________
-    public List<ModuleEffect> GetModuleEffectsForUnit(Token unit)
+    //Druga wersja uproszczenia - dzia³a, choæ nie jestem pewny w 100%
+    public void SetModuleEffectsForAll(Token moduleToken, bool add)
     {
-        List<ModuleEffect> appliedEffects = new List<ModuleEffect>();
+        if (moduleToken.tokenData.moduleEffects == null || moduleToken.tokenData.moduleEffects.Count == 0) return;
 
-        foreach (var tokenEntry in tokenGrid)
+        foreach (var effect in moduleToken.tokenData.moduleEffects)
         {
-            Token potentialModule = tokenEntry.Value;
-            if (potentialModule == null || potentialModule.tokenData.tokenType != TokenType.Module)
-                continue;
-
-            foreach (var effect in potentialModule.tokenData.moduleEffects)
+            foreach (var direction in effect.directions)
             {
-                AttackDirection rotatedDir = potentialModule.GetRotatedDirection(effect.direction);
-                Vector2Int moduleEffectDir = GetHexDirection(potentialModule.hexCoords, rotatedDir);
-                Vector2Int targetPos = potentialModule.hexCoords + moduleEffectDir;
+                AttackDirection rotatedDir = moduleToken.GetRotatedDirection(direction);
+                Vector2Int targetPos = moduleToken.hexCoords + GetHexDirection(moduleToken.hexCoords, rotatedDir);
 
-                if (targetPos == unit.hexCoords)
+                ProcessModuleEffects(moduleToken, targetPos, add);
+            }
+        }
+    }
+
+    public void SetModuleEffectsForThis(Vector2Int target, List<Vector2Int> neighborModules, bool add)
+    {
+        foreach (var modulePos in neighborModules)
+        {
+            if (!tokenGrid.TryGetValue(modulePos, out Token moduleToken)) continue;
+            if (moduleToken.tokenData.moduleEffects == null || moduleToken.tokenData.moduleEffects.Count == 0) continue;
+            
+            ProcessModuleEffects(moduleToken, target, add);              
+        }
+    }
+
+    private void ProcessModuleEffects(Token moduleToken, Vector2Int targetPos, bool add)
+    {
+        if (tokenGrid.TryGetValue(targetPos, out Token targetToken))
+        {
+            foreach (var effect in moduleToken.tokenData.moduleEffects)
+            {
+                foreach (var direction in effect.directions)
                 {
-                    appliedEffects.Add(effect);
-                    Debug.Log($"MODU£ {potentialModule.tokenData.tokenName} wp³ywa na {unit.tokenData.tokenName} z efektem {effect.effectType} +{effect.value}");
+                    AttackDirection rotatedDir = moduleToken.GetRotatedDirection(direction);
+                    Vector2Int effectTarget = moduleToken.hexCoords + GetHexDirection(moduleToken.hexCoords, rotatedDir);
+
+                    if (effectTarget == targetPos) // Jeœli efekt modu³u dzia³a na target
+                    {
+                        bool isEnemy = targetToken.tokenData.army != moduleToken.tokenData.army;
+                        if ((effect.enemyTarger && isEnemy) || (!effect.enemyTarger && !isEnemy))
+                        {
+                            if (add)
+                                moduleToken.ApplyEffectToTarget(targetToken, effect);
+                            else
+                                moduleToken.RemoveEffectFromTarget(targetToken, effect);
+                        }
+                    }
                 }
             }
         }
+    }
+}
 
-        return appliedEffects;
+/* Wersja bez rozdzia³u czêœci wspólnej pomiêdzy SetModuleEffectsForAll i SetModuleEffectsForThis - dzia³a
+    public void SetModuleEffectsForAll(Token moduleToken, bool add)
+    {
+        if (moduleToken.tokenData.moduleEffects == null || moduleToken.tokenData.moduleEffects.Count == 0) return;
+
+        foreach (var effect in moduleToken.tokenData.moduleEffects)
+        {
+            foreach (var direction in effect.directions)
+            {
+                // Ustalanie rzeczywistego kierunku efektu uwzglêdniaj¹c obrót modu³u
+                AttackDirection rotatedDir = moduleToken.GetRotatedDirection(direction);
+                Vector2Int targetPos = moduleToken.hexCoords + GetHexDirection(moduleToken.hexCoords, rotatedDir);
+
+                Debug.Log($"Kierunek rotacji: {rotatedDir} Kierunek modu³u: {targetPos.x},{targetPos.y}");
+
+                if (tokenGrid.TryGetValue(targetPos, out Token targetToken))
+                {
+                    bool isEnemy = targetToken.tokenData.army != moduleToken.tokenData.army;
+                    if ((effect.enemyTarger && isEnemy) || (!effect.enemyTarger && !isEnemy))
+                    {
+                        if (add)
+                            moduleToken.ApplyEffectToTarget(targetToken, effect);
+                        else
+                            moduleToken.RemoveEffectFromTarget(targetToken, effect);
+                    }
+                }
+            }
+        }
+    }
+
+    public void SetModuleEffectsForThis(Vector2Int target, List<Vector2Int> neighborModules, bool add)
+    {
+        foreach (var modulePos in neighborModules)
+        {
+            if (!tokenGrid.TryGetValue(modulePos, out Token moduleToken)) continue; // Sprawdza, czy w danym s¹siednim polu jest modu³
+
+            if (moduleToken.tokenData.moduleEffects == null || moduleToken.tokenData.moduleEffects.Count == 0) continue;
+
+            foreach (var effect in moduleToken.tokenData.moduleEffects)
+            {
+                foreach (var direction in effect.directions)
+                {
+                    // Ustalanie rzeczywistego kierunku efektu uwzglêdniaj¹c obrót modu³u
+                    AttackDirection rotatedDir = moduleToken.GetRotatedDirection(direction);
+                    Vector2Int effectTarget = modulePos + GetHexDirection(modulePos, rotatedDir);
+
+                    if (effectTarget == target) // Jeœli efekt modu³u dzia³a na target
+                    {
+                        bool isEnemy = tokenGrid[target].tokenData.army != moduleToken.tokenData.army;
+                        if ((effect.enemyTarger && isEnemy) || (!effect.enemyTarger && !isEnemy))
+                        {
+                            if (add)
+                                moduleToken.ApplyEffectToTarget(tokenGrid[target], effect);
+                            else
+                                moduleToken.RemoveEffectFromTarget(tokenGrid[target], effect);
+                        }
+                    }
+                }
+            }
+        }
+    }
+*/
+/*  Trzecia wersja uproszczenia. Nie nadaje efektów, jednostce, która wesz³a w zasiêg efektu i nie usuwa, gdy wysz³a
+    public void SetModuleEffectsForAll(Token moduleToken, bool add)
+    {
+        if (moduleToken.tokenData.moduleEffects == null || moduleToken.tokenData.moduleEffects.Count == 0) return;
+
+        ProcessModuleEffects(moduleToken, moduleToken.hexCoords, add);
+    }
+
+    public void SetModuleEffectsForThis(Vector2Int target, List<Vector2Int> neighborModules, bool add)
+    {
+        foreach (var modulePos in neighborModules)
+        {
+            if (!tokenGrid.TryGetValue(modulePos, out Token moduleToken)) continue;
+            if (moduleToken.tokenData.moduleEffects == null || moduleToken.tokenData.moduleEffects.Count == 0) continue;
+
+            ProcessModuleEffects(moduleToken, target, add);
+        }
+    }
+
+    private void ProcessModuleEffects(Token moduleToken, Vector2Int basePos, bool add)
+    {
+        foreach (var effect in moduleToken.tokenData.moduleEffects)
+        {
+            foreach (var direction in effect.directions)
+            {
+                AttackDirection rotatedDir = moduleToken.GetRotatedDirection(direction);
+                Vector2Int effectTarget = basePos + GetHexDirection(basePos, rotatedDir);
+
+                if (tokenGrid.TryGetValue(effectTarget, out Token targetToken))
+                {
+                    bool isEnemy = targetToken.tokenData.army != moduleToken.tokenData.army;
+                    if ((effect.enemyTarger && isEnemy) || (!effect.enemyTarger && !isEnemy))
+                    {
+                        if (add)
+                            moduleToken.ApplyEffectToTarget(targetToken, effect);
+                        else
+                            moduleToken.RemoveEffectFromTarget(targetToken, effect);
+                    }
+                }
+            }
+        }
     }
 */

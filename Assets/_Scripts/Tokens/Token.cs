@@ -18,7 +18,7 @@ public class Token : MonoBehaviour
 
     private bool isBeingRotated = false;
     private Vector3 initialMousePosition;
-    private float currentRotation = 0f;
+    public float currentRotation = 0f;
     public GameObject rotationAreaPrefab;
     private GameObject rotationArea;
     private CircleCollider2D circleCollider;
@@ -147,7 +147,7 @@ public class Token : MonoBehaviour
         mouseWorldPosition.z = 0;
 
         
-        if (Input.GetMouseButtonDown(0)) // Klikniêcie myszk¹
+        if (Input.GetMouseButtonDown(0)) // Klikniêcie LPM
         {
             if (circleCollider.OverlapPoint(mouseWorldPosition))
             {
@@ -168,7 +168,7 @@ public class Token : MonoBehaviour
                 }
             }
         }
-        if (Input.GetMouseButtonUp(0)) // Puszczenie przycisku myszy
+        if (Input.GetMouseButtonUp(0)) // Puszczenie LPM
         {
             if (isBeingRotated)
             {
@@ -194,9 +194,7 @@ public class Token : MonoBehaviour
         }
     }
 
-
-
-    // Próby rotowania globalnego
+//_______________ROTOWANIE ¯ETONEM GLOBALNE__________________
     void RotateTokenWithMouse()
     {
         Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -249,81 +247,82 @@ public class Token : MonoBehaviour
 
         //Debug.Log($"Obracanie zatrzymane. K¹t: {currentRotation}");
     }
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 /* Stara wersja rotowania ¿etonem
-    public void StartRotationPREW(Vector3 mousePosition)
-    {
-        if (!isPlaced)
+        public void StartRotationPREW(Vector3 mousePosition)
         {
-            isBeingRotated = true;
-            initialMousePosition = mousePosition;
+            if (!isPlaced)
+            {
+                isBeingRotated = true;
+                initialMousePosition = mousePosition;
+            }
         }
-    }
 
-    public void StopRotationPREW()
-    {
-        //isBeingRotated = false;
-
-        //// Zaokr¹glenie k¹ta obrotu do najbli¿szej wielokrotnoœci 60 stopni
-        //float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f;
-
-        //// Ustawienie obrotu na zaokr¹glony k¹t
-        //transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
-        //currentRotation = roundedAngle;
-
-        //Debug.Log($"Obracanie zatrzymane. Aktualny k¹t: {currentRotation}");
-
-        isBeingRotated = false;
-        currentRotation = transform.rotation.eulerAngles.z; // Zapamiêtanie aktualnego k¹ta
-        float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f; // Zaokr¹glenie do 60 stopni
-        transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
-
-        Debug.Log($"Obracanie zatrzymane. Zaokr¹glony k¹t: {roundedAngle}");
-    }
-
-    void RotateTokenWithMousePREW()
-    {
-        //Vector3 mouseDelta = Input.mousePosition - initialMousePosition;
-        //float angle = Mathf.Atan2(mouseDelta.y, mouseDelta.x) * Mathf.Rad2Deg;
-        //transform.rotation = Quaternion.Euler(0, 0, angle);
-        //currentRotation = angle;
-
-        Vector3 currentMousePosition = Input.mousePosition;
-
-        // Obliczenie k¹ta pocz¹tkowego i aktualnego wzglêdem pozycji ¿etonu
-        Vector3 tokenScreenPosition = Camera.main.WorldToScreenPoint(transform.position);
-        float initialAngle = Mathf.Atan2(initialMousePosition.y - tokenScreenPosition.y, initialMousePosition.x - tokenScreenPosition.x) * Mathf.Rad2Deg;
-        float currentAngle = Mathf.Atan2(currentMousePosition.y - tokenScreenPosition.y, currentMousePosition.x - tokenScreenPosition.x) * Mathf.Rad2Deg;
-
-        // Obliczenie ró¿nicy k¹ta
-        float angleDelta = Mathf.DeltaAngle(initialAngle, currentAngle);
-
-        // Aktualizacja k¹ta
-        transform.rotation = Quaternion.Euler(0, 0, currentRotation + angleDelta);
-    }
-
-    void OnMouseDownPREV()
-    {
-        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
-        if (hit.collider != null && hit.collider.gameObject == gameObject)
+        public void StopRotationPREW()
         {
-            //if (isPlaced)
-            //{
-            //    Debug.Log("¯eton zatwierdzony.");
-            //    Destroy(rotationArea);  // Usuniêcie pola do obracania
-            //}
-            //else
-            //{
-            //    isPlaced = true;
-            //    Debug.Log("¯eton gotowy do zatwierdzenia. Kliknij ponownie, aby umieœciæ go na sta³e.");
-            //}
-            this.isPlaced = true;
-            Debug.Log("¯eton zatwierdzony.");
-            Destroy(rotationArea);  // Usuniêcie pola do obracania
+            //isBeingRotated = false;
+
+            //// Zaokr¹glenie k¹ta obrotu do najbli¿szej wielokrotnoœci 60 stopni
+            //float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f;
+
+            //// Ustawienie obrotu na zaokr¹glony k¹t
+            //transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
+            //currentRotation = roundedAngle;
+
+            //Debug.Log($"Obracanie zatrzymane. Aktualny k¹t: {currentRotation}");
+
+            isBeingRotated = false;
+            currentRotation = transform.rotation.eulerAngles.z; // Zapamiêtanie aktualnego k¹ta
+            float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f; // Zaokr¹glenie do 60 stopni
+            transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
+
+            Debug.Log($"Obracanie zatrzymane. Zaokr¹glony k¹t: {roundedAngle}");
         }
-    }
-*/
+
+        void RotateTokenWithMousePREW()
+        {
+            //Vector3 mouseDelta = Input.mousePosition - initialMousePosition;
+            //float angle = Mathf.Atan2(mouseDelta.y, mouseDelta.x) * Mathf.Rad2Deg;
+            //transform.rotation = Quaternion.Euler(0, 0, angle);
+            //currentRotation = angle;
+
+            Vector3 currentMousePosition = Input.mousePosition;
+
+            // Obliczenie k¹ta pocz¹tkowego i aktualnego wzglêdem pozycji ¿etonu
+            Vector3 tokenScreenPosition = Camera.main.WorldToScreenPoint(transform.position);
+            float initialAngle = Mathf.Atan2(initialMousePosition.y - tokenScreenPosition.y, initialMousePosition.x - tokenScreenPosition.x) * Mathf.Rad2Deg;
+            float currentAngle = Mathf.Atan2(currentMousePosition.y - tokenScreenPosition.y, currentMousePosition.x - tokenScreenPosition.x) * Mathf.Rad2Deg;
+
+            // Obliczenie ró¿nicy k¹ta
+            float angleDelta = Mathf.DeltaAngle(initialAngle, currentAngle);
+
+            // Aktualizacja k¹ta
+            transform.rotation = Quaternion.Euler(0, 0, currentRotation + angleDelta);
+        }
+
+        void OnMouseDownPREV()
+        {
+            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+            if (hit.collider != null && hit.collider.gameObject == gameObject)
+            {
+                //if (isPlaced)
+                //{
+                //    Debug.Log("¯eton zatwierdzony.");
+                //    Destroy(rotationArea);  // Usuniêcie pola do obracania
+                //}
+                //else
+                //{
+                //    isPlaced = true;
+                //    Debug.Log("¯eton gotowy do zatwierdzenia. Kliknij ponownie, aby umieœciæ go na sta³e.");
+                //}
+                this.isPlaced = true;
+                Debug.Log("¯eton zatwierdzony.");
+                Destroy(rotationArea);  // Usuniêcie pola do obracania
+            }
+        }
+    */
 
     public AttackDirection GetRotatedDirection(AttackDirection baseDirection)
     {
@@ -334,7 +333,7 @@ public class Token : MonoBehaviour
         AttackDirection.Down,
         AttackDirection.DownRight,
         AttackDirection.UpRight
-    };
+        };
 
         // Obliczamy przesuniêcie w indeksach tablicy
         int shift = Mathf.RoundToInt(currentRotation / 60f) % 6;
@@ -378,7 +377,8 @@ public class Token : MonoBehaviour
     public void ResetMoves()
     {
         int index = currentFeatures.FindIndex(f => f.feature == TokenFeatures.Moving);
-        if (index >= 0)
+        Debug.Log(index);
+        if (index >= 0 && index < tokenData.tokenFeatures.Count)
         {
             currentFeatures[index] = new Features
             {
@@ -392,6 +392,15 @@ public class Token : MonoBehaviour
     {
         isPlaced = true;
         Debug.Log($"¯eton {tokenData.tokenName} umieszczony na {hexCoords}");
+
+        if (tokenData.moduleEffects.Count > 0)
+        {
+            BoardManager boardManager = FindObjectOfType<BoardManager>();
+            if (boardManager != null)
+            {
+                boardManager.SetModuleEffectsForAll(this, true);
+            }
+        }
     }
 
     public void TakeDamage(int damage)
@@ -413,4 +422,249 @@ public class Token : MonoBehaviour
     //    Gizmos.color = Color.blue;
     //    Gizmos.DrawWireSphere(transform.position, neighborCheckRadius);
     //}
+
+    public List<Vector2Int> GetNeighborPositions()
+    {
+        List<Vector2Int> neighbors = new List<Vector2Int>();
+
+        foreach (var neighbor in neighborStatus)
+        {
+            if (neighbor.Value)
+            {
+                neighbors.Add(neighbor.Key);
+            }
+        }
+
+        return neighbors;
+    }
+
+    //_______________MODU£Y__________________
+    public void ApplyEffectToTarget(Token target, ModuleEffect effect)
+    {
+        switch (effect.effectType)
+        {
+            case ModuleEffectType.MeleeDamageBoost:
+                target.BoostMeleeDamage(effect.value);
+                break;
+            case ModuleEffectType.RangedDamageBoost:
+                target.BoostRangedDamage(effect.value);
+                break;
+            case ModuleEffectType.HealthBoost:
+                target.IncreaseHealth(effect.value);
+                break;
+            case ModuleEffectType.InitiativeBoost:
+                target.IncreaseInitiative(effect.value);
+                break;
+            case ModuleEffectType.InitiativeReduction:
+                target.DecreaseInitiative(effect.value);
+                break;
+            case ModuleEffectType.ExtraInitiative:
+                target.GainExtraInitiative(effect.value);
+                break;
+            case ModuleEffectType.GiveMovement:
+                target.GainExtraMovement(effect.value);
+                break;
+            default:
+                Debug.Log($"Efekt {effect.effectType} bêdzie implementowany w przysz³oœci.");
+                break;
+        }
+    }
+    public void RemoveEffectFromTarget(Token target, ModuleEffect effect)
+    {
+        switch (effect.effectType)
+        {
+            case ModuleEffectType.MeleeDamageBoost:
+                target.BoostMeleeDamage(-effect.value);
+                break;
+            case ModuleEffectType.RangedDamageBoost:
+                target.BoostRangedDamage(-effect.value);
+                break;
+            case ModuleEffectType.HealthBoost:
+                target.IncreaseHealth(-effect.value);
+                break;
+            case ModuleEffectType.InitiativeBoost:
+                target.DecreaseInitiative(effect.value);
+                break;
+            case ModuleEffectType.InitiativeReduction:
+                target.IncreaseInitiative(effect.value); ;
+                break;
+            case ModuleEffectType.ExtraInitiative:
+                target.RemoveLowestInitiative();
+                break;
+            case ModuleEffectType.GiveMovement:
+                target.RemoveExtraMovement(effect.value);
+                break;
+        }
+    }
+
+    public void BoostMeleeDamage(int amount)
+    {
+        for (int i = 0; i < currentAttackEffects.Count; i++)
+        {
+            if (!currentAttackEffects[i].attacks.Any(a => a.isRanged))
+            {
+                for (int j = 0; j < currentAttackEffects[i].attacks.Count; j++)
+                {
+                    AttackFeatures modifiedAttack = currentAttackEffects[i].attacks[j]; // Pobranie kopii obiektu
+                    modifiedAttack.attackPower += amount; // Modyfikacja
+                    currentAttackEffects[i].attacks[j] = modifiedAttack; // Zapisanie zmodyfikowanego obiektu
+                }
+            }
+        }
+    }
+    public void BoostRangedDamage(int amount)
+    {
+        for (int i = 0; i < currentAttackEffects.Count; i++)
+        {
+            if (currentAttackEffects[i].attacks.Any(a => a.isRanged))
+            {
+                for (int j = 0; j < currentAttackEffects[i].attacks.Count; j++)
+                {
+                    AttackFeatures modifiedAttack = currentAttackEffects[i].attacks[j]; // Pobranie kopii obiektu
+                    modifiedAttack.attackPower += amount; // Modyfikacja
+                    currentAttackEffects[i].attacks[j] = modifiedAttack; // Zapisanie zmodyfikowanego obiektu
+                }
+            }
+        }
+    }
+
+    public void IncreaseHealth(int amount)
+    {
+        currentHealth += amount;
+    }
+
+    public void IncreaseInitiative(int amount)
+    {
+        if (currentInitiatives.Count == 0) return;
+
+        int zeroCount = currentInitiatives.Count(i => i == 0);
+        bool hasZeroInTokenData = tokenData.initiatives.Contains(0);
+
+        if (zeroCount >= 2)
+        {
+            if (hasZeroInTokenData)
+            {
+                // Jeœli `tokenData.initiatives` zawiera zero, zwiêksza tylko wartoœci wiêksze od zera
+                for (int i = 0; i < currentInitiatives.Count; i++)
+                {
+                    if (currentInitiatives[i] > 0)
+                    {
+                        currentInitiatives[i] += amount;
+                    }
+                }
+            }
+            else
+            {
+                // Jeœli `tokenData.initiatives` nie zawiera zera, zwiêksza jedno zero i ka¿d¹ wartoœæ > 0
+                bool oneZeroChanged = false;
+                for (int i = 0; i < currentInitiatives.Count; i++)
+                {
+                    if (currentInitiatives[i] == 0 && !oneZeroChanged)
+                    {
+                        currentInitiatives[i] += amount;
+                        oneZeroChanged = true;
+                    }
+                    else if (currentInitiatives[i] > 0)
+                    {
+                        currentInitiatives[i] += amount;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Normalnie zwiêkszamy ka¿d¹ inicjatywê
+            for (int i = 0; i < currentInitiatives.Count; i++)
+            {
+                currentInitiatives[i] += amount;
+            }
+        }
+    }
+    public void DecreaseInitiative(int amount)
+    {
+        if (currentInitiatives.Count == 0) return;
+
+        for (int i = 0; i < currentInitiatives.Count; i++)
+        {
+            currentInitiatives[i] = Mathf.Max(0, currentInitiatives[i] - amount);
+        }
+    }
+
+
+    public void GainExtraInitiative(int amount)
+    {
+        if (currentInitiatives.Count == 0) return;
+
+        int minInitiative = currentInitiatives.Min();
+        int newInitiative = Mathf.Max(0, minInitiative - 1); // Nowa inicjatywa, ale nie mo¿e spaœæ poni¿ej 0
+
+        currentInitiatives.Add(newInitiative);
+    }
+    public void RemoveLowestInitiative()
+    {
+        if (currentInitiatives.Count > 0)
+        {
+            int minInitiative = currentInitiatives.Min();
+
+            // Usuwa najmniejsz¹ inicjatywê, jeœli jednostka ma inne lub min != 0
+            if (minInitiative != 0 || currentInitiatives.Count > 1)
+            {
+                currentInitiatives.Remove(minInitiative);
+            }
+        }
+    }
+
+    public void GainExtraMovement(int amount)
+    {
+        int index = currentFeatures.FindIndex(f => f.feature == TokenFeatures.Moving);
+        if (index >= 0)
+        {
+            currentFeatures[index] = new Features
+            {
+                feature = TokenFeatures.Moving,
+                quantity = currentFeatures[index].quantity + amount
+            };
+        }
+        else
+        {
+            // Jeœli jednostka nie ma Moving
+            currentFeatures.Add(new Features
+            {
+                feature = TokenFeatures.Moving,
+                quantity = amount
+            });
+        }
+    }
+    public void RemoveExtraMovement(int amount)
+    {
+        int index = currentFeatures.FindIndex(f => f.feature == TokenFeatures.Moving);
+
+        if (index >= 0)
+        {
+            int baseMovement = tokenData.tokenFeatures
+                .Where(f => f.feature == TokenFeatures.Moving)
+                .Select(f => f.quantity)
+                .DefaultIfEmpty(0)
+                .First(); // Pobiera wartoœæ bazow¹ Moving z TokenData (jeœli istnieje)
+
+            int newQuantity = Math.Max(0, currentFeatures[index].quantity - amount);
+
+            if (newQuantity == 0 && baseMovement == 0)
+            {
+                // Jeœli jednostka nie mia³a Moving w TokenData, usuwamy cechê
+                currentFeatures.RemoveAt(index);
+            }
+            else
+            {
+                // Jeœli jednostka mia³a Moving w TokenData, nie mo¿e spaœæ poni¿ej bazowej wartoœci
+                currentFeatures[index] = new Features
+                {
+                    feature = TokenFeatures.Moving,
+                    quantity = newQuantity
+                };
+            }
+        }
+    }
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 }
