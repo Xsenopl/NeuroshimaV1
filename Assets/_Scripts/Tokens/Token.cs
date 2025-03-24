@@ -617,7 +617,8 @@ public class Token : MonoBehaviour
     public void GainExtraMovement(int amount)
     {
         int index = currentFeatures.FindIndex(f => f.feature == TokenFeatures.Moving);
-        if (index >= 0)
+        
+        if (index >= 0) // Jeœli jednostka ma Moving
         {
             currentFeatures[index] = new Features
             {
@@ -625,9 +626,8 @@ public class Token : MonoBehaviour
                 quantity = currentFeatures[index].quantity + amount
             };
         }
-        else
+        else    // Jeœli jednostka nie ma Moving
         {
-            // Jeœli jednostka nie ma Moving
             currentFeatures.Add(new Features
             {
                 feature = TokenFeatures.Moving,

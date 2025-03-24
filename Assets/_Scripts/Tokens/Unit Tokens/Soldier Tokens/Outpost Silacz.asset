@@ -24,7 +24,5 @@ MonoBehaviour:
     - attackPower: 2
       isRanged: 0
     abilities: 
-  tokenFeatures:
-  - feature: 1
-    quantity: 1
+  tokenFeatures: []
   moduleEffects: []

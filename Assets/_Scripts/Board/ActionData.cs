@@ -25,15 +25,6 @@ public class ActionData
             this.originalSlot = originalSlot;
         }
     }
-    // Konstruktor dla ruchu ¿etonu
-    public ActionData(TokenData tokenData, Vector3Int position, Vector3Int previousPosition, float previousRotation)
-    {
-        this.tokenData = tokenData;
-        this.position = position;
-        this.previousPosition = previousPosition;
-        this.previousRotation = previousRotation;
-        this.originalSlot = null;
-    }
 
     // Konstruktor dla ruchu ¿etonu
     public ActionData(Token token, Vector3Int previousPosition, float previousRotation)

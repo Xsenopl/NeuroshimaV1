@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using Unity.VisualScripting.Antlr3.Runtime;
 
 public class TokenSlotManager : MonoBehaviour
 {
@@ -20,13 +21,16 @@ public class TokenSlotManager : MonoBehaviour
     private List<TokenData> player1Pool = new List<TokenData>(); // ¯etony Gracza 1
     private List<TokenData> player2Pool = new List<TokenData>(); // ¯etony Gracza 2
 
+    StatsManager statsManager;
     private Slot selectedSlot; // Wybrany slot (dla mechaniki odrzucania)
     private TokenData selectedToken = null; // Aktualnie wybrany ¿eton 
     private int turnCounter = 1;  // Licznik tur
+    private TokenData selectedActionToken = null;
 
     private void Start()
     {
         boardManager = FindObjectOfType<BoardManager>();
+        statsManager = FindObjectOfType<StatsManager>();
         //trashButton.gameObject.SetActive(false);
         //trashButton.onClick.AddListener(TrashSelectedToken);
 
@@ -47,7 +51,6 @@ public class TokenSlotManager : MonoBehaviour
         if (player1Database != null)
         {
             player1Pool = new List<TokenData>(player1Database.allTokens);
-            //EnsureHeadquarterFirst(player1Pool);
         }
         else
         {
@@ -57,7 +60,6 @@ public class TokenSlotManager : MonoBehaviour
         if (player2Database != null)
         {
             player2Pool = new List<TokenData>(player2Database.allTokens);
-            //EnsureHeadquarterFirst(player2Pool);
         }
         else
         {
@@ -203,6 +205,7 @@ public class TokenSlotManager : MonoBehaviour
         if (selectedToken == null)
         {
             Debug.LogWarning("¯aden ¿eton nie zosta³ wybrany.");
+            return null;
         }
         return selectedToken;
     }
@@ -217,15 +220,15 @@ public class TokenSlotManager : MonoBehaviour
 
 //_______________ODRZUCANIE ¯ETONÓW__________________
     // Odrzucenie ¿etonu z rêki i dodanie na cmentarz
-    public void DiscardToken(TokenData token, Slot slot)
+    public void DiscardToken(TokenData token)
     {
         int ownerPlayer = boardManager.GetTokenOwner(token.army);
 
-        //Debug.Log($"Gracz {ownerPlayer} odrzuci³ ¿eton: {token.tokenName}.");
-        boardManager.AddActionToStack(new ActionData(token, null, slot.GetComponent<Image>()));
-        FindObjectOfType<StatsManager>().AddToGraveyard(token, ownerPlayer);
-
-        slot.ClearSlot();
+        if (statsManager != null)
+        {
+            //Debug.Log($"Gracz {ownerPlayer} odrzuci³ ¿eton: {token.tokenName}.");
+            statsManager.AddToGraveyard(token, ownerPlayer);
+        }
     }
 
     public void ConfirmDiscard()
@@ -233,15 +236,17 @@ public class TokenSlotManager : MonoBehaviour
         if (selectedSlot == null || selectedSlot.assignedToken == null)
         {
             Debug.LogWarning("Brak wybranego ¿etonu do odrzucenia!");
+            trashSlotImage.SetActive(false);
             return;
         }
 
         TokenData tokenToDiscard = selectedSlot.assignedToken;
-        DiscardToken(tokenToDiscard, selectedSlot);
+        boardManager.AddActionToStack(new ActionData(tokenToDiscard, null, selectedSlot.GetComponent<Image>()));
+        DiscardToken(tokenToDiscard);
 
         trashSlotImage.SetActive(false); // Ukryj obrazek, jeœli odrzucanie nie jest wymagane
-        selectedSlot = null;
-        selectedToken = null;
+
+        ClearAllSelections();
     }
 
     public void ShowTrashConfirmation(Slot slot)
@@ -265,6 +270,29 @@ public class TokenSlotManager : MonoBehaviour
     }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+//_______________¯ETONY AKCJI__________________
+    public void AfterUsingActionToken()
+    {
+        if (selectedToken == null) return;
+
+        DiscardToken(selectedToken);
+        if (selectedSlot != null && selectedSlot.GetComponent<Slot>() != null)
+        {
+            selectedSlot.GetComponent<Slot>().ClearSlot();
+            Debug.Log("To siê wywo³uje");
+        }
+        ClearAllSelections();
+        trashSlotImage.SetActive(false);
+    }
+
+    public bool HasSelectedActionToken()
+    {
+        return selectedToken != null && selectedToken.tokenType == TokenType.Action;
+    }
+
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
     public void UpdatePanelInteractivity()
     {
         bool isPlayer1Turn = (boardManager.CurrentPlayer == 1);
@@ -287,6 +315,12 @@ public class TokenSlotManager : MonoBehaviour
     }
     public void ClearSelectedToken()
     {
+        selectedToken = null;
+    }
+
+    public void ClearAllSelections()
+    {
+        selectedSlot.ClearSlot();
         selectedToken = null;
     }
 }

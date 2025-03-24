@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 04548e54d91054b4694c893d7285bb82
+guid: 30083a1d95527224cbb29a39f367cea6
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -139,11 +139,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Outpost Silacz
+      name: Outpost Ruch
       rect:
         serializedVersion: 2
-        x: 0
-        y: 30
+        x: 6
+        y: 17
         width: 256
         height: 226
       alignment: 0
@@ -198,7 +198,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Outpost Silacz: 2747690628134850419
+      Outpost Ruch: 2747690628134850419
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

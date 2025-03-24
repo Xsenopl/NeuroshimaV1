@@ -13,10 +13,11 @@ public class BattleController : MonoBehaviour
 
     private void Start()
     {
+        if (battleButton == null)   return;
         battleButton.onClick.AddListener(StartBattle);
     }
 
-    private void StartBattle()
+    public void StartBattle()
     {
         Debug.Log("Rozpoczynam bitwê!");
 

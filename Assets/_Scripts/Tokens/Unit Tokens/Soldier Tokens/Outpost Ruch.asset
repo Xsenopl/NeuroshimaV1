@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
-  m_Name: Outpost Zwiadowca
+  m_Name: Outpost Ruch
   m_EditorClassIdentifier: 
   army: Outpost
-  sprite: {fileID: 2747690628134850419, guid: 28a9d74f1b03e9f4686762690b3bf40f, type: 3}
-  tokenName: Zwiadowca O
+  sprite: {fileID: 2747690628134850419, guid: 30083a1d95527224cbb29a39f367cea6, type: 3}
+  tokenName: Ruch O
   tokenType: 3
-  health: 1
+  health: 0
   initiatives: 
   directionFeatures: []
   tokenFeatures:
-  - feature: 5
-    quantity: 2
+  - feature: 0
+    quantity: 1
   moduleEffects: []

@@ -19,7 +19,7 @@ public class TokenData : ScriptableObject
 public enum TokenType { Unit, Module, Headquarter, Action }
 public enum AttackDirection { Up, UpRight, DownRight, Down, DownLeft, UpLeft }
 public enum DirectionalAbility { Armor, Net, Sniper }
-public enum TokenFeatures { Moving, Push }
+public enum TokenFeatures { Moving, Push, Battle, Sniper, Granade, Bomb}
 
 // Struktura przechowuj¹ca umiejêtnoœci dla danego kierunku
 [System.Serializable]

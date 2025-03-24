@@ -4598,6 +4598,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1259292706
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1259292708}
+  - component: {fileID: 1259292707}
+  m_Layer: 0
+  m_Name: BattleController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1259292707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259292706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbfb2cbf042e55a44a229c6a8e943931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  battleButton: {fileID: 0}
+  boardManager: {fileID: 1612901567}
+--- !u!4 &1259292708
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259292706}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 16.626638, y: 59.251568, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1305347879
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6107,6 +6153,7 @@ MonoBehaviour:
   tilemap: {fileID: 2038427732}
   tokenPrefab: {fileID: 1780670858973517217, guid: e66bb685845e4144694a4b739503fdb6, type: 3}
   tokenManager: {fileID: 982844765}
+  battleController: {fileID: 1259292707}
   panelConfirmationController: {fileID: 1968653260}
   selectedTokenForMove: {fileID: 0}
 --- !u!4 &1612901568
@@ -8568,3 +8615,4 @@ SceneRoots:
   - {fileID: 420361960}
   - {fileID: 553100744}
   - {fileID: 982844766}
+  - {fileID: 1259292708}
