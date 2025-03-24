@@ -10,21 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
-  m_Name: Outpost Sztab
+  m_Name: Outpost Snajper
   m_EditorClassIdentifier: 
   army: Outpost
-  sprite: {fileID: 2747690628134850419, guid: 538e624a82136e24b8961e60739251cb, type: 3}
-  tokenName: Sztab Posterunek
-  tokenType: 2
-  health: 20
-  initiatives: 00000000
-  directionFeatures:
-  - direction: 0
-    attacks:
-    - attackPower: 1
-      isRanged: 1
-    abilities: 04000000
+  sprite: {fileID: 2747690628134850419, guid: 56b9cb3b0f3cef34a8606d7a1ce179ef, type: 3}
+  tokenName: Snajper O
+  tokenType: 3
+  health: 0
+  initiatives: 
+  directionFeatures: []
   tokenFeatures:
-  - feature: 0
-    quantity: 2
+  - feature: 3
+    quantity: 1
   moduleEffects: []

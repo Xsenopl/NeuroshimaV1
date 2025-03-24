@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 04548e54d91054b4694c893d7285bb82
+guid: 56b9cb3b0f3cef34a8606d7a1ce179ef
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -139,11 +139,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Outpost Silacz
+      name: Hexagon Flat-Top
       rect:
         serializedVersion: 2
         x: 0
-        y: 30
+        y: 15
         width: 256
         height: 226
       alignment: 0
@@ -198,7 +198,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Outpost Silacz: 2747690628134850419
+      Hexagon Flat-Top: 2747690628134850419
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

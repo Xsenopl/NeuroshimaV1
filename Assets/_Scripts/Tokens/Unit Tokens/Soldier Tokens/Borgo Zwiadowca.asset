@@ -15,23 +15,11 @@ MonoBehaviour:
   army: Borgo
   sprite: {fileID: 2747690628134850419, guid: 35c49e81e3f362c4bb0e7e145187b1e4, type: 3}
   tokenName: Zwiadowca
-  tokenType: 1
+  tokenType: 3
   health: 1
-  initiatives: 01000000
-  attackEffects:
-  - direction: 0
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
-  - direction: 1
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
-  - direction: 5
-    effects:
-    - abilities: 
-      attackPower: 1
-      isRanged: 0
+  initiatives: 
+  directionFeatures: []
+  tokenFeatures:
+  - feature: 4
+    quantity: 0
   moduleEffects: []

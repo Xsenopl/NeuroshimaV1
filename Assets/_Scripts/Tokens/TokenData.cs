@@ -11,41 +11,52 @@ public class TokenData : ScriptableObject
     public TokenType tokenType;
     public int health;
     public List<int> initiatives;
-    public List<DirectionalEffects> attackEffects; // Lista efektów ataku i umiejêtnoœci wed³ug kierunku
+    public List<DirectionalFeatures> directionFeatures; // Lista efektów ataku i umiejêtnoœci wed³ug kierunku
+    public List<Features> tokenFeatures;
     public List<ModuleEffect> moduleEffects;
 }
 
 public enum TokenType { Unit, Module, Headquarter, Action }
 public enum AttackDirection { Up, UpRight, DownRight, Down, DownLeft, UpLeft }
-public enum SpecialAbility { Armor, Net, Sniper, Push, Moving }
+public enum DirectionalAbility { Armor, Net, Sniper }
+public enum TokenFeatures { Moving, Push, Battle, Sniper, Granade, Bomb}
 
-// Struktura przechowuj¹ca informacje o efektach w danym kierunku
+// Struktura przechowuj¹ca umiejêtnoœci dla danego kierunku
 [System.Serializable]
-public struct TokenEffect
-{
-    public SpecialAbility[] abilities; // Lista zdolnoœci specjalnych
-    public int attackPower; // Si³a ataku (0 to brak ataku)
-    public bool isRanged; // Czy jest to atak dystansowy?
-    //public int range; // Zasiêg ataku (1 dal wrêcz, X dla dystansowego)
-}
-
-// Struktura przechowuj¹ca efekty dla danego kierunku
-[System.Serializable]
-public struct DirectionalEffects
+public struct DirectionalFeatures
 {
     public AttackDirection direction; // Kierunek ataku
-    public List<TokenEffect> effects; // Lista efektów w danym kierunku
+    public List<AttackFeatures> attacks; // Lista efektów w danym kierunku
+    public DirectionalAbility[] abilities; // Lista zdolnoœci kierunkowych
 }
 
+// Struktura przechowuj¹ca informacje o ataku
+[System.Serializable]
+public struct AttackFeatures
+{ 
+    public int attackPower; // Si³a ataku (0 to brak ataku)
+    public bool isRanged; // Czy jest to atak dystansowy?
+}
+
+// Struktura przechowuj¹ca cechy jednostek
+[System.Serializable]
+public struct Features
+{
+    public TokenFeatures feature;
+    public int quantity;
+}
+
+// Struktura przechowuj¹ca efekty modu³ów dla danego kierunku
 [System.Serializable]
 public struct ModuleEffect
 {
     public ModuleEffectType effectType; // Typ efektu modu³u
     public int value;                   // Wartoœæ efektu (np. +1 do obra¿eñ, +1 inicjatywa)
-    public AttackDirection direction;   // Kierunek
+    public List<AttackDirection> directions;   // Kierunki
+    public bool enemyTarger;
 }
 
 public enum ModuleEffectType
 {
-    MeleeDamageBoost, RangedDamageBoost, HealthBoost, InitiativeBoost, InitiativeReduction, ExtraInitiative
+    MeleeDamageBoost, RangedDamageBoost, HealthBoost, InitiativeBoost, InitiativeReduction, ExtraInitiative, GiveMovement, Medic, ChangeAttackToRange, CaptureTheModule
 }
