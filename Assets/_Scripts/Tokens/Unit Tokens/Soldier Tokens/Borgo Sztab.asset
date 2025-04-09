@@ -27,7 +27,3 @@ MonoBehaviour:
     value: 1
     directions: 000000000100000002000000030000000400000005000000
     enemyTarger: 0
-  - effectType: 4
-    value: 1
-    directions: 000000000100000002000000030000000400000005000000
-    enemyTarger: 1

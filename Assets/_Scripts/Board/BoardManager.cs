@@ -52,8 +52,9 @@ public class BoardManager : MonoBehaviour
         // Debug.Log("Plansza za³adowana. Gotowa do umieszczania ¿etonów.");
         player1Army = "Borgo";
         player2Army = "Outpost";
+        WebController.RegisterDuel(player1Army, player2Army);
         //Debug.Log($"Dla 1 jest {player1Army}.   Dla 2 jest {player2Army}");
-        Debug.Log("Tura Gracza "+CurrentPlayer);
+        //Debug.Log("Tura Gracza "+CurrentPlayer);
     }
 
     private void Update()
@@ -97,10 +98,10 @@ public class BoardManager : MonoBehaviour
         // Jeœli wybrano ¿eton do ruchu, ale klikniêto w inne pole – przesuñ go
         if (selectedTokenForMove != null)
         {
-            Debug.LogWarning("¯eton w trakcie ruchu");
+            //Debug.LogWarning("¯eton w trakcie ruchu");
             if (selectedTokenForMove.CanMoveTo(hexCoords))
             {
-                Debug.LogWarning("Mo¿e siê ruszyæ na to pole");
+                //Debug.LogWarning("Mo¿e siê ruszyæ na to pole");
                 MoveToken(selectedTokenForMove, hexCoords);
             }
             selectedTokenForMove = null; // Reset wyboru po ruchu
@@ -579,9 +580,13 @@ public class BoardManager : MonoBehaviour
 
         switch (feature)
         {
-            case TokenFeatures.Battle:                   
+            case TokenFeatures.Battle:
                     //Debug.Log("Akcja - bitwa!");
+                    string jsonBefore = TokenGridExporter.ExportTokenGridAsJson(tokenGrid);
+                    WebController.RegisterBoard(jsonBefore, true);
                     battleController.StartBattle();
+                    string jsonAfter = TokenGridExporter.ExportTokenGridAsJson(tokenGrid);
+                    WebController.RegisterBoard(jsonAfter, false);
                 return true;
 
             case TokenFeatures.Moving:

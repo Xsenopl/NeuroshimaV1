@@ -20,6 +20,6 @@ MonoBehaviour:
   initiatives: 
   directionFeatures: []
   tokenFeatures:
-  - feature: 3
+  - feature: 2
     quantity: 1
   moduleEffects: []

@@ -10,6 +10,7 @@ public class BattleController : MonoBehaviour
     public BoardManager boardManager;
 
     private int battlePhase; // Aktualna faza bitwy
+    private List<(int phase, int ax, int ay, int tx, int ty)> attackList = new List<(int, int, int, int, int)>();
 
     private void Start()
     {
@@ -21,11 +22,14 @@ public class BattleController : MonoBehaviour
     {
         Debug.Log("Rozpoczynam bitwê!");
 
-        //ApplyModuleEffects();
         battlePhase = boardManager.GetHighestInitiative();
         MiddleBattle();
 
         boardManager.ChangeCurrentPlayer();
+
+        string json = TokenGridExporter.ExportAttackListAsJson(attackList);
+        WebController.RegisterBattle(json);
+        attackList.Clear();
         Debug.Log("Koñczê bitwê!");
     }
 
@@ -66,6 +70,8 @@ public class BattleController : MonoBehaviour
         {
             foreach (var effect in attackEffect.attacks)
             {
+                attackList.Add((battlePhase, attacker.hexCoords.x, attacker.hexCoords.y, targetToken.hexCoords.x, targetToken.hexCoords.y));
+
                 targetToken.TakeDamage(effect.attackPower);
                 Debug.Log($"{attacker.tokenData.tokenName} ({attacker.currentAttackEffects.Count} efektów) atakuje {targetToken.tokenData.tokenName} za {effect.attackPower} DMG! (Ranged: {effect.isRanged})");
 
