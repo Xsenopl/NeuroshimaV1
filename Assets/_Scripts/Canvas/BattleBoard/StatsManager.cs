@@ -19,13 +19,13 @@ public class StatsManager : MonoBehaviour
 
     void Awake()
     {
-        if (FindObjectsOfType<StatsManager>().Length > 1)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        //if (FindObjectsOfType<StatsManager>().Length > 1)
+        //{
+        //    Destroy(gameObject);
+        //    return;
+        //}
 
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
     }
 
     public void InitializePools(List<TokenData> p1Pool, List<TokenData> p2Pool)

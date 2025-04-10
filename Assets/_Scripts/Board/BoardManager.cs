@@ -11,6 +11,7 @@ using static UnityEngine.GraphicsBuffer;
 
 public class BoardManager : MonoBehaviour
 {
+    [SerializeField]
     private int _currentPlayer = 1; // 1 - Gracz 1, 2 - Gracz 2
     public int CurrentPlayer 
     {
