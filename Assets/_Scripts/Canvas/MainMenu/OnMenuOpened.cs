@@ -13,6 +13,7 @@ public class OnMenuOpened : MonoBehaviour
         else
             Debug.Log("GameController istnieje");
         GameController.instance.HideGUI();
+        GameController.instance.HideTokenManager();
     }
 
 

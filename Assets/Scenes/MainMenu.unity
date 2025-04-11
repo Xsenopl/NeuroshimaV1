@@ -3734,8 +3734,8 @@ MonoBehaviour:
   multiPanel: {fileID: 892063592}
   optionsPanel: {fileID: 373224281}
   tutorialPanel: {fileID: 227550526}
-  player1Army: Hegemonia
-  player2Army: Moloch
+  player1Army: 
+  player2Army: 
 --- !u!1 &1410389855
 GameObject:
   m_ObjectHideFlags: 0

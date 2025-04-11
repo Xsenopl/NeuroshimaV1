@@ -7,8 +7,16 @@ public class GameController : MonoBehaviour
 {
     public static GameController instance;
     public GameObject GUI;
+    public GameObject TokenManager;
 
     public BoardManager boardManager;
+    public TokenSlotManager tokenManager;
+
+    public string selectedPlayer1Army;
+    public string selectedPlayer2Army;
+
+    public TokenDatabase player1Database;
+    public TokenDatabase player2Database;
 
     private void Awake()
     {
@@ -22,11 +30,13 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        
+        tokenManager = GetComponentInChildren<TokenSlotManager>(true);
     }
 
     public void ShowGUI() { GUI.SetActive(true); }
     public void HideGUI() { GUI.SetActive(false); }
+    public void ShowTokenManager() { TokenManager.SetActive(true); }
+    public void HideTokenManager() { TokenManager.SetActive(false); }
 
 
     void Update()

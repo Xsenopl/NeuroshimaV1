@@ -11,8 +11,14 @@ public class MainMenuController : MonoBehaviour
     public GameObject optionsPanel;
     public GameObject tutorialPanel;
 
-    public string player1Army = "Hegemonia";
-    public string player2Army = "Moloch";
+    public string player1Army;
+    public string player2Army;
+
+    private void Start()
+    {
+        player1Army = "Outpost";
+        player2Army = "Borgo";
+    }
 
     public void ShowMainPanel() { mainPanel.SetActive(true); }
     public void HideMainPanel() { mainPanel.SetActive(false); }
@@ -31,6 +37,19 @@ public class MainMenuController : MonoBehaviour
 
     public void CreateNewDuel()
     {
+        GameController.instance.selectedPlayer1Army = player1Army;
+        GameController.instance.selectedPlayer2Army = player2Army;
+        // Przypisanie dla ka¿dej armii
+        GameController.instance.player1Database = Resources.Load<TokenDatabase>($"Armies/{player1Army}");
+        GameController.instance.player2Database = Resources.Load<TokenDatabase>($"Armies/{player2Army}");
+
+        if (GameController.instance.player1Database != null)
+            Debug.Log($"Armia {player1Army} istnieje");
+        else Debug.Log($"Armia {player1Army} nie istnieje");
+        if (GameController.instance.player2Database != null)
+            Debug.Log($"Armia {player2Army} istnieje");
+        else Debug.Log($"Armia {player2Army} nie istnieje");
+
         StartCoroutine(NewGameAsync());
     
     }

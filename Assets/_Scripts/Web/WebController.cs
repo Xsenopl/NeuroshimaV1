@@ -33,15 +33,15 @@ public static class WebController
 
 
 
-    static async void Start()
-    {
-        //StartCoroutine(GetRequest($"{SERVER_URL}/testowy2.php"));
-        if (await SendPostManager.RegisterDuel("NeodŸungla", "Hegemonia"))
-        {
-            Debug.Log("Uda³o siê dodaæ duel");
-        }
-        else Debug.Log("Nie uda³o siê dodaæ duela");
-    }
+    //static async void Start()
+    //{
+    //    //StartCoroutine(GetRequest($"{SERVER_URL}/testowy2.php"));
+    //    if (await SendPostManager.RegisterDuel("NeodŸungla", "Hegemonia"))
+    //    {
+    //        Debug.Log("Uda³o siê dodaæ duel");
+    //    }
+    //    else Debug.Log("Nie uda³o siê dodaæ duela");
+    //}
 
 
     static IEnumerator GetRequest(string uri)

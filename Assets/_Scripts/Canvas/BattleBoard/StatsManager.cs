@@ -120,4 +120,24 @@ public class StatsManager : MonoBehaviour
         // Aktualizacja wyœwietlania cmentarza
         PopulateScrollView(graveyard, (player == 1) ? graveyardContentP1 : graveyardContentP2);
     }
+
+    public void ClearGraveyard()
+    {
+        // Czyœci s³owniki danych
+        player1Graveyard.Clear();
+        player2Graveyard.Clear();
+
+        // Usuwa dzieci z kontenerów UI
+        foreach (Transform child in graveyardContentP1)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (Transform child in graveyardContentP2)
+        {
+            Destroy(child.gameObject);
+        }
+
+        Debug.Log("Cmentarze graczy zosta³y wyczyszczone.");
+    }
 }

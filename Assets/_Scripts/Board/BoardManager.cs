@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,9 +51,14 @@ public class BoardManager : MonoBehaviour
 
     private void Start()
     {
+        GameController gc = GameController.instance;
+        tokenManager = gc.GetComponentInChildren<TokenSlotManager>(true);
+        InitFromGController(gc);
+        AssignReferencesToGUI(gc);
+        panelConfirmationController = gc.GUI.GetComponentInChildren<PanelConfirmationController>(true);
         // Debug.Log("Plansza za³adowana. Gotowa do umieszczania ¿etonów.");
-        player1Army = "Borgo";
-        player2Army = "Outpost";
+        //player1Army = "Borgo";
+        //player2Army = "Outpost";
         WebController.RegisterDuel(player1Army, player2Army);
         //Debug.Log($"Dla 1 jest {player1Army}.   Dla 2 jest {player2Army}");
         //Debug.Log("Tura Gracza "+CurrentPlayer);
@@ -69,6 +75,36 @@ public class BoardManager : MonoBehaviour
     }
 
     public void ChangeCurrentPlayer() { CurrentPlayer = _currentPlayer == 1 ? 2 : 1; }
+
+    private void InitFromGController(GameController gc)
+    {
+        player1Army = gc.selectedPlayer1Army;
+        player2Army = gc.selectedPlayer2Army;
+
+        tokenManager.player1Database = gc.player1Database;
+        tokenManager.player2Database = gc.player2Database;
+
+        tokenManager.InitializePools();
+    }
+
+    private void AssignReferencesToGUI(GameController gc)
+    {
+        if (gc.GUI == null) { Debug.LogError("GameController.GUI nie jest ustawione"); return; }
+
+        // Szuka komponentów w GUI
+        PopupMenuController popup = gc.GUI.GetComponentInChildren<PopupMenuController>(true);
+        StatsManager stats = gc.GUI.GetComponentInChildren<StatsManager>(true);
+
+        if (popup != null)
+        {
+            popup.tokenSlotManager = tokenManager;
+        }
+
+        if (stats != null)
+        {
+            stats.tokenSlotManager = tokenManager;
+        }
+    }
 
     // Zamiana pozycji œwiata na wspó³rzêdne heksagonalne
     public Vector3Int WorldToHex(Vector3 worldPosition)

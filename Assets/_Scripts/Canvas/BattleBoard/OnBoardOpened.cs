@@ -13,5 +13,20 @@ public class OnBoardOpened : MonoBehaviour
         else
             Debug.Log("GameController istnieje");
         GameController.instance.ShowGUI();
+        GameController.instance.ShowTokenManager();
+      
+        GameController.instance.boardManager = FindAnyObjectByType<BoardManager>();
+
+        GameController.instance.tokenManager.boardManager = GameController.instance.boardManager;
+
+        GameController.instance.tokenManager.UpdatePanelInteractivity();
+        //if (GameController.instance.boardManager != null)
+        //{
+        //    TokenSlotManager[] slots = GameController.instance.TokenManager.GetComponentsInChildren<TokenSlotManager>();    
+        //    foreach (var slot in slots)
+        //    {
+        //        slot.boardManager = GameController.instance.boardManager;
+        //    }
+        //}
     }
 }

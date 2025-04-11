@@ -25,28 +25,31 @@ public class TokenSlotManager : MonoBehaviour
     private Slot selectedSlot; // Wybrany slot (dla mechaniki odrzucania)
     private TokenData selectedToken = null; // Aktualnie wybrany ¿eton 
     private int turnCounter = 1;  // Licznik tur
-    private TokenData selectedActionToken = null;
 
     private void Start()
     {
-        boardManager = FindObjectOfType<BoardManager>();
+        //boardManager = FindObjectOfType<BoardManager>();
+        //boardManager = GameController.instance.boardManager;
         statsManager = FindObjectOfType<StatsManager>();
-        //trashButton.gameObject.SetActive(false);
-        //trashButton.onClick.AddListener(TrashSelectedToken);
 
         undoButton.onClick.AddListener(() => boardManager.UndoLastAction());
         endTurnButton.onClick.AddListener(EndTurn);
-        InitializePools(); // Rozdzielamy ¿etony na graczy
+
+        //trashButton.gameObject.SetActive(false);
+        //trashButton.onClick.AddListener(TrashSelectedToken);
+
+        
+        //InitializePools(); // Rozdzielamy ¿etony na graczy
         ClearSlots();
 
         AssignSlotListeners(player1Slots, 1);
         AssignSlotListeners(player2Slots, 2);
 
-        DrawHeadquarter(1); // Gracz 1 dostaje sztab na start (z za³o¿enia zaczyna grê)
+        //DrawHeadquarter(1); // Gracz 1 dostaje sztab na start (z za³o¿enia zaczyna grê)
     }
 
     // Inicjalizacja puli ¿etonów z TokenDatabase
-    private void InitializePools()
+    public void InitializePools()
     {
         if (player1Database != null)
         {
@@ -65,6 +68,8 @@ public class TokenSlotManager : MonoBehaviour
         {
             Debug.LogError("Brak przypisanego TokenDatabase dla Gracza 2!");
         }
+
+        DrawHeadquarter(1);
     }
 
     public List<TokenData> GetPlayer1Pool() { return new List<TokenData>(player1Pool); }
@@ -322,5 +327,12 @@ public class TokenSlotManager : MonoBehaviour
     {
         selectedSlot.ClearSlot();
         selectedToken = null;
+    }
+
+    public void ResetAll()
+    {
+        ClearAllSelections();
+        ClearSlots();
+        turnCounter = 1;
     }
 }

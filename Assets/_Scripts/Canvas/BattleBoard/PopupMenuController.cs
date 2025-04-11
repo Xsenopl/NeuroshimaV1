@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class PopupMenuController : MonoBehaviour
 {
@@ -54,6 +55,24 @@ public class PopupMenuController : MonoBehaviour
     {
         statsWindow.SetActive(false);
         popupMenu.SetActive(true);
+    }
+
+    public void GoToMainMenu()
+    {
+        //tokenSlotManager.ClearSlots();
+        tokenSlotManager.ResetAll();
+        statsManager.ClearGraveyard();
+        StartCoroutine(MainMenuAsync());
+    }
+
+    private IEnumerator MainMenuAsync()
+    {
+        SceneManager.LoadSceneAsync(0);
+        while (SceneManager.GetActiveScene().buildIndex == 0)
+        {
+            yield return null;
+        }
+        GameController.instance.HideGUI();
     }
 }
 
