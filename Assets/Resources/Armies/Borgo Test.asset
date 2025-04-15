@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15a4cf13b590b943ad5aed5ab671649, type: 3}
+  m_Name: Borgo Test
+  m_EditorClassIdentifier: 
+  allTokens:
+  - {fileID: 11400000, guid: c29c1ec3e698e1248b0188e82c703d78, type: 2}
+  - {fileID: 11400000, guid: 296fdecd8af4f264aa857791370d072b, type: 2}
+  - {fileID: 11400000, guid: 296fdecd8af4f264aa857791370d072b, type: 2}
+  - {fileID: 11400000, guid: 4a9dd02cf0c08f443b50d6228a65e805, type: 2}
+  - {fileID: 11400000, guid: 4a9dd02cf0c08f443b50d6228a65e805, type: 2}
+  - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
+  - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
+  - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
+  - {fileID: 11400000, guid: 4a9dd02cf0c08f443b50d6228a65e805, type: 2}
+  - {fileID: 11400000, guid: 08d2f0378c8b0174c8ebd052f1f46e57, type: 2}
+  - {fileID: 11400000, guid: 08d2f0378c8b0174c8ebd052f1f46e57, type: 2}

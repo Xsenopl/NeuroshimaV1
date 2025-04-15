@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
+  m_Name: Likwidator - Outpost
+  m_EditorClassIdentifier: 
+  army: Outpost
+  sprite: {fileID: 21300000, guid: 8b55df2902374e94785e77087aaab653, type: 3}
+  tokenName: Likwidator
+  tokenType: 0
+  health: 1
+  initiatives: 02000000
+  directionFeatures:
+  - direction: 4
+    attacks:
+    - attackPower: 2
+      isRanged: 1
+    abilities: 
+  tokenFeatures: []
+  moduleEffects: []
