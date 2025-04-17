@@ -52,16 +52,11 @@ public class BoardManager : MonoBehaviour
     private void Start()
     {
         GameController gc = GameController.instance;
-        tokenManager = gc.GetComponentInChildren<TokenSlotManager>(true);
+        
         InitFromGController(gc);
-        AssignReferencesToGUI(gc);
-        panelConfirmationController = gc.GUI.GetComponentInChildren<PanelConfirmationController>(true);
+        
         // Debug.Log("Plansza za³adowana. Gotowa do umieszczania ¿etonów.");
-        //player1Army = "Borgo";
-        //player2Army = "Outpost";
         WebController.RegisterDuel(player1Army, player2Army);
-        //Debug.Log($"Dla 1 jest {player1Army}.   Dla 2 jest {player2Army}");
-        //Debug.Log("Tura Gracza "+CurrentPlayer);
     }
 
     private void Update()
@@ -78,32 +73,11 @@ public class BoardManager : MonoBehaviour
 
     private void InitFromGController(GameController gc)
     {
+        tokenManager = gc.GetComponentInChildren<TokenSlotManager>(true);
+        panelConfirmationController = gc.GUI.GetComponentInChildren<PanelConfirmationController>(true);
+
         player1Army = gc.selectedPlayer1Army;
         player2Army = gc.selectedPlayer2Army;
-
-        tokenManager.player1Database = gc.player1Database;
-        tokenManager.player2Database = gc.player2Database;
-
-        tokenManager.InitializePools();
-    }
-
-    private void AssignReferencesToGUI(GameController gc)
-    {
-        if (gc.GUI == null) { Debug.LogError("GameController.GUI nie jest ustawione"); return; }
-
-        // Szuka komponentów w GUI
-        PopupMenuController popup = gc.GUI.GetComponentInChildren<PopupMenuController>(true);
-        StatsManager stats = gc.GUI.GetComponentInChildren<StatsManager>(true);
-
-        if (popup != null)
-        {
-            popup.tokenSlotManager = tokenManager;
-        }
-
-        if (stats != null)
-        {
-            stats.tokenSlotManager = tokenManager;
-        }
     }
 
     // Zamiana pozycji œwiata na wspó³rzêdne heksagonalne

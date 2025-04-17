@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4046776076213530425}
   - component: {fileID: 5388062790979075983}
   - component: {fileID: 934993002302663079}
+  - component: {fileID: 993230028719491422}
   m_Layer: 5
   m_Name: ArmyImagePrefab
   m_TagString: Untagged
@@ -141,3 +142,15 @@ MonoBehaviour:
   m_FlexibleWidth: 20
   m_FlexibleHeight: 20
   m_LayoutPriority: 1
+--- !u!114 &993230028719491422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 864013107505588928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e559e708667069d4fbf82916a6f1b495, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

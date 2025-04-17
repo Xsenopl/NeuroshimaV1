@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2747690628134850419, guid: b55b3e3db00af024abe349a3ea3eb983, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -186,7 +186,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2747690628134850419, guid: b55b3e3db00af024abe349a3ea3eb983, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1223,8 +1223,12 @@ MonoBehaviour:
   endTurnButton: {fileID: 8852680811457387460}
   undoButton: {fileID: 7636036323203067913}
   trashSlotImage: {fileID: 5571689361988299208}
+  statsManager: {fileID: 8718850409523270184}
   player1Database: {fileID: 0}
   player2Database: {fileID: 0}
+  selectedSlot: {fileID: 0}
+  selectedToken: {fileID: 0}
+  turnCounter: 1
 --- !u!1 &1853210184690656047
 GameObject:
   m_ObjectHideFlags: 0
@@ -1409,7 +1413,7 @@ MonoBehaviour:
   boardManager: {fileID: 0}
   tokenManager: {fileID: 0}
   selectedPlayer1Army: Hegemonia
-  selectedPlayer2Army: Mooch
+  selectedPlayer2Army: Moloch
   player1Database: {fileID: 11400000, guid: 297ab765f141ad34d91622268a63082e, type: 2}
   player2Database: {fileID: 11400000, guid: 09e53738721a72a44b7db9ca7be30ff0, type: 2}
 --- !u!1 &2275906848412975725
@@ -3006,7 +3010,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2747690628134850419, guid: b55b3e3db00af024abe349a3ea3eb983, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

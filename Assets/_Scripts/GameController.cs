@@ -31,12 +31,19 @@ public class GameController : MonoBehaviour
     void Start()
     {
         tokenManager = GetComponentInChildren<TokenSlotManager>(true);
+        tokenManager.player1Database = player1Database;
     }
 
     public void ShowGUI() { GUI.SetActive(true); }
     public void HideGUI() { GUI.SetActive(false); }
     public void ShowTokenManager() { TokenManager.SetActive(true); }
     public void HideTokenManager() { TokenManager.SetActive(false); }
+
+    public void AssignArmies()
+    {
+        tokenManager.UpdatePanelInteractivity();
+        tokenManager.InitializePools(player1Database, player2Database);
+    }
 
 
     void Update()

@@ -16,8 +16,8 @@ public class MainMenuController : MonoBehaviour
 
     private void Start()
     {
-        player1Army = "Outpost";
-        player2Army = "Borgo";
+        //player1Army = "Outpost";
+        //player2Army = "Borgo";
     }
 
     public void ShowMainPanel() { mainPanel.SetActive(true); }
@@ -35,20 +35,22 @@ public class MainMenuController : MonoBehaviour
     public void ShowTutorialPanel() { tutorialPanel.SetActive(true); }
     public void HideTutorialPanel() { tutorialPanel.SetActive(false); }
 
+    public void ExitGame() { Application.Quit(); }
+
     public void CreateNewDuel()
     {
+        if (string.IsNullOrEmpty(player1Army) || string.IsNullOrEmpty(player2Army)) return;
+
         GameController.instance.selectedPlayer1Army = player1Army;
         GameController.instance.selectedPlayer2Army = player2Army;
         // Przypisanie dla ka¿dej armii
         GameController.instance.player1Database = Resources.Load<TokenDatabase>($"Armies/{player1Army}");
         GameController.instance.player2Database = Resources.Load<TokenDatabase>($"Armies/{player2Army}");
 
-        if (GameController.instance.player1Database != null)
-            Debug.Log($"Armia {player1Army} istnieje");
-        else Debug.Log($"Armia {player1Army} nie istnieje");
-        if (GameController.instance.player2Database != null)
-            Debug.Log($"Armia {player2Army} istnieje");
-        else Debug.Log($"Armia {player2Army} nie istnieje");
+        if (GameController.instance.player1Database == null)
+            { Debug.Log($"Armia {player1Army} nie istnieje"); return; }
+        if (GameController.instance.player2Database == null)
+            { Debug.Log($"Armia {player2Army} nie istnieje"); return; }
 
         StartCoroutine(NewGameAsync());
     

@@ -15,49 +15,50 @@ public class TokenSlotManager : MonoBehaviour
     public Button endTurnButton;
     public Button undoButton;
     public GameObject trashSlotImage; // Obrazek potwierdzaj¹cy odrzucenie
+    public StatsManager statsManager;
 
     public TokenDatabase player1Database;
     public TokenDatabase player2Database;
     private List<TokenData> player1Pool = new List<TokenData>(); // ¯etony Gracza 1
     private List<TokenData> player2Pool = new List<TokenData>(); // ¯etony Gracza 2
 
-    StatsManager statsManager;
-    private Slot selectedSlot; // Wybrany slot (dla mechaniki odrzucania)
-    private TokenData selectedToken = null; // Aktualnie wybrany ¿eton 
+    [SerializeField] private Slot selectedSlot; // Wybrany slot (dla mechaniki odrzucania)
+    [SerializeField] private TokenData selectedToken = null; // Aktualnie wybrany ¿eton 
+    [SerializeField]
     private int turnCounter = 1;  // Licznik tur
 
-    private void Start()
+    private void Awake()
     {
-        //boardManager = FindObjectOfType<BoardManager>();
-        //boardManager = GameController.instance.boardManager;
-        statsManager = FindObjectOfType<StatsManager>();
+        if (player1Slots == null || player1Slots.Count == 0)
+            Debug.LogWarning("player1Slots nie zosta³y przypisane w Inspectorze!");
 
-        undoButton.onClick.AddListener(() => boardManager.UndoLastAction());
-        endTurnButton.onClick.AddListener(EndTurn);
-
-        //trashButton.gameObject.SetActive(false);
-        //trashButton.onClick.AddListener(TrashSelectedToken);
-
-        
-        //InitializePools(); // Rozdzielamy ¿etony na graczy
-        ClearSlots();
+        if (player2Slots == null || player2Slots.Count == 0)
+            Debug.LogWarning("player2Slots nie zosta³y przypisane w Inspectorze!");
 
         AssignSlotListeners(player1Slots, 1);
         AssignSlotListeners(player2Slots, 2);
+    }
 
-        //DrawHeadquarter(1); // Gracz 1 dostaje sztab na start (z za³o¿enia zaczyna grê)
+    private void Start()
+    {
+        undoButton.onClick.AddListener(() => boardManager.UndoLastAction());
+        endTurnButton.onClick.AddListener(EndTurn);
+
     }
 
     // Inicjalizacja puli ¿etonów z TokenDatabase
-    public void InitializePools()
+    public void InitializePools(TokenDatabase player1Army, TokenDatabase player2Army)
     {
+        player1Database = player1Army;
+        player2Database = player2Army;
+
         if (player1Database != null)
         {
             player1Pool = new List<TokenData>(player1Database.allTokens);
         }
         else
         {
-            Debug.LogError("Brak przypisanego TokenDatabase dla Gracza 1!");
+            Debug.LogError("Brak przypisanej armii dla Gracza 1!");
         }
 
         if (player2Database != null)
@@ -66,9 +67,10 @@ public class TokenSlotManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Brak przypisanego TokenDatabase dla Gracza 2!");
+            Debug.LogError("Brak przypisanej armii dla Gracza 2!");
         }
 
+        ClearSlots();
         DrawHeadquarter(1);
     }
 
@@ -325,7 +327,8 @@ public class TokenSlotManager : MonoBehaviour
 
     public void ClearAllSelections()
     {
-        selectedSlot.ClearSlot();
+        if(selectedSlot != null)
+            selectedSlot.ClearSlot();
         selectedToken = null;
     }
 

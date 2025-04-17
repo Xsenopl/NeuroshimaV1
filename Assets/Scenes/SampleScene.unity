@@ -1123,8 +1123,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _currentPlayer: 1
-  player1Army: 
-  player2Army: 
+  player1Army: Hegemonia
+  player2Army: Moloch
   tilemap: {fileID: 2038427732}
   tokenPrefab: {fileID: 1780670858973517217, guid: e66bb685845e4144694a4b739503fdb6, type: 3}
   tokenManager: {fileID: 0}

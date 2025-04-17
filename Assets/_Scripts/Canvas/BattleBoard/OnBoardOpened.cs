@@ -10,16 +10,15 @@ public class OnBoardOpened : MonoBehaviour
     {
         if (GameController.instance == null)
             Instantiate(gameController);
-        else
-            Debug.Log("GameController istnieje");
+
         GameController.instance.ShowGUI();
         GameController.instance.ShowTokenManager();
-      
         GameController.instance.boardManager = FindAnyObjectByType<BoardManager>();
 
         GameController.instance.tokenManager.boardManager = GameController.instance.boardManager;
 
-        GameController.instance.tokenManager.UpdatePanelInteractivity();
+        GameController.instance.AssignArmies();
+
         //if (GameController.instance.boardManager != null)
         //{
         //    TokenSlotManager[] slots = GameController.instance.TokenManager.GetComponentsInChildren<TokenSlotManager>();    
