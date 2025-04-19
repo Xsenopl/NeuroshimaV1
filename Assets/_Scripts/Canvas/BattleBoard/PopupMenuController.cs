@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PopupMenuController : MonoBehaviour
 {
@@ -12,6 +13,11 @@ public class PopupMenuController : MonoBehaviour
 
     public StatsManager statsManager;
     public TokenSlotManager tokenSlotManager;
+
+    private int baseFontSize = 80;
+    private int basePopupMenuPaddingWidth = 560;
+    private Vector2 referenceResolution = new(1920, 1080);
+    
 
     void Start()
     {
@@ -24,6 +30,9 @@ public class PopupMenuController : MonoBehaviour
                 Debug.LogError("StatsManager nie zosta³ znaleziony na scenie!");
             }
         }
+
+        UpdatePadding(popupMenu, referenceResolution, basePopupMenuPaddingWidth);
+        UpdateFontSizeInChildren(popupMenu, referenceResolution, baseFontSize);
 
         // Ukrycie menu na start
         popupMenu.SetActive(false);
@@ -73,6 +82,34 @@ public class PopupMenuController : MonoBehaviour
             yield return null;
         }
         GameController.instance.HideGUI();
+    }
+
+    void UpdatePadding(GameObject verticalLayoutGroup, Vector2 baseResolution, int basePadding)
+    {
+        VerticalLayoutGroup popupMenuLayout = verticalLayoutGroup.GetComponent<VerticalLayoutGroup>();
+        float scaleFactor = Screen.width / baseResolution.x;
+
+        int newPadding = Mathf.RoundToInt(basePadding * scaleFactor);
+
+        //popupMenuLayout.padding.top = newPadding;
+        //popupMenuLayout.padding.bottom = newPadding;
+        popupMenuLayout.padding.left = newPadding;
+        popupMenuLayout.padding.right = newPadding;
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(popupMenuLayout.GetComponent<RectTransform>());
+    }
+
+    public void UpdateFontSizeInChildren(GameObject parent, Vector2 baseResolution, int baseFontSize)
+    {
+        Text[] texts = parent.GetComponentsInChildren<Text>(true);
+        float scaleFactor = Screen.width / baseResolution.x;
+
+        int newFont = Mathf.RoundToInt(baseFontSize * scaleFactor);
+
+        foreach (Text txt in texts)
+        {
+            txt.fontSize = newFont;
+        }
     }
 }
 

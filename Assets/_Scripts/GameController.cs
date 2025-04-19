@@ -36,6 +36,20 @@ public class GameController : MonoBehaviour
 
     public void ShowGUI() { GUI.SetActive(true); }
     public void HideGUI() { GUI.SetActive(false); }
+
+    public void AssignMainCameraToCanvas()
+    {
+        if (GUI.TryGetComponent<Canvas>(out var canvas))
+        {
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = Camera.main;
+        }
+        else
+        {
+            Debug.LogWarning("Brak komponentu Canvas GUI!");
+        }
+    }
+
     public void ShowTokenManager() { TokenManager.SetActive(true); }
     public void HideTokenManager() { TokenManager.SetActive(false); }
 

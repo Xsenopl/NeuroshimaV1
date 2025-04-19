@@ -6874,6 +6874,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1146987560452990022, guid: 2fe6ea849fd4d184a91700d13f56224a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -0.22003174
+      objectReference: {fileID: 0}
     - target: {fileID: 1262474056614432860, guid: 2fe6ea849fd4d184a91700d13f56224a, type: 3}
       propertyPath: m_Name
       value: ArmyImagePrefab (2)

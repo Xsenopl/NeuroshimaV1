@@ -17,17 +17,6 @@ public class StatsManager : MonoBehaviour
     private Dictionary<string, int> player1Graveyard = new Dictionary<string, int>(); // Cmentarz Gracza 1
     private Dictionary<string, int> player2Graveyard = new Dictionary<string, int>(); // Cmentarz Gracza 2
 
-    void Awake()
-    {
-        //if (FindObjectsOfType<StatsManager>().Length > 1)
-        //{
-        //    Destroy(gameObject);
-        //    return;
-        //}
-
-        //DontDestroyOnLoad(gameObject);
-    }
-
     public void InitializePools(List<TokenData> p1Pool, List<TokenData> p2Pool)
     {
         // Czyszczenie poprzednich danych

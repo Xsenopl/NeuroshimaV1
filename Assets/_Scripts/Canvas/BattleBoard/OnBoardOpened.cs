@@ -11,6 +11,7 @@ public class OnBoardOpened : MonoBehaviour
         if (GameController.instance == null)
             Instantiate(gameController);
 
+        GameController.instance.AssignMainCameraToCanvas();
         GameController.instance.ShowGUI();
         GameController.instance.ShowTokenManager();
         GameController.instance.boardManager = FindAnyObjectByType<BoardManager>();
