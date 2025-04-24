@@ -13,11 +13,19 @@ MonoBehaviour:
   m_Name: Mozg - Moloch
   m_EditorClassIdentifier: 
   army: Moloch
-  sprite: {fileID: 21300000, guid: ce6f3674cb71a89409b308a5d999ad2d, type: 3}
-  tokenName: 
-  tokenType: 0
+  sprite: {fileID: 21300000, guid: 7ca82b121c825f54385c9da0c85b3dc1, type: 3}
+  tokenName: "M\xF3zg"
+  tokenType: 1
   health: 1
   initiatives: 
   directionFeatures: []
   tokenFeatures: []
-  moduleEffects: []
+  moduleEffects:
+  - effectType: 0
+    value: 1
+    directions: 000000000200000004000000
+    enemyTarger: 0
+  - effectType: 1
+    value: 1
+    directions: 000000000200000004000000
+    enemyTarger: 0

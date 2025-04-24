@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   army: Hegemonia
   sprite: {fileID: 21300000, guid: 9bb38f82dfb873845bc25b3bb2808621, type: 3}
-  tokenName: Sztab Hegemonia
+  tokenName: Sztab Hegemonii
   tokenType: 2
   health: 20
   initiatives: 00000000

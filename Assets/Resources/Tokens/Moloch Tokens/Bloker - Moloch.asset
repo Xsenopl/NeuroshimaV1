@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: Bloker - Moloch
   m_EditorClassIdentifier: 
   army: Moloch
-  sprite: {fileID: 21300000, guid: f0d244cfd06def14f825e5227e3cf195, type: 3}
-  tokenName: 
+  sprite: {fileID: 21300000, guid: 61f25860b1c4ed74cbfc78800a380789, type: 3}
+  tokenName: Bloker
   tokenType: 0
-  health: 1
+  health: 3
   initiatives: 
-  directionFeatures: []
+  directionFeatures:
+  - direction: 0
+    attacks: []
+    abilities: 00000000
   tokenFeatures: []
   moduleEffects: []

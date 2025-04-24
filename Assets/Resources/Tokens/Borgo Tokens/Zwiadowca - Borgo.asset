@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   army: Borgo
   sprite: {fileID: 21300000, guid: c4a06e21d33a68a45b3bb26d4f6faa6f, type: 3}
-  tokenName: Borgo
+  tokenName: Zwiadowca Borgo
   tokenType: 1
   health: 1
   initiatives: 

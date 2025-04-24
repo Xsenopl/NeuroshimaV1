@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
   m_Name: Bitwa - Hegemonia
   m_EditorClassIdentifier: 
-  army: 
+  army: Hegemonia
   sprite: {fileID: 21300000, guid: d6f317f205dc83b4d8e87f5d8b222069, type: 3}
-  tokenName: 
-  tokenType: 0
+  tokenName: Bitwa Hegemonii
+  tokenType: 3
   health: 0
   initiatives: 
   directionFeatures: []
-  tokenFeatures: []
+  tokenFeatures:
+  - feature: 2
+    quantity: 1
   moduleEffects: []

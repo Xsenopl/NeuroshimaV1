@@ -13,11 +13,16 @@ MonoBehaviour:
   m_Name: Rozpruwacz - Moloch
   m_EditorClassIdentifier: 
   army: Moloch
-  sprite: {fileID: 21300000, guid: ce6f3674cb71a89409b308a5d999ad2d, type: 3}
-  tokenName: 
+  sprite: {fileID: 21300000, guid: f7f9fa5586a8d2a4a8f06254e479c5d5, type: 3}
+  tokenName: Rozpruwacz
   tokenType: 0
   health: 1
-  initiatives: 
-  directionFeatures: []
+  initiatives: 02000000
+  directionFeatures:
+  - direction: 0
+    attacks:
+    - attackPower: 2
+      isRanged: 0
+    abilities: 
   tokenFeatures: []
   moduleEffects: []

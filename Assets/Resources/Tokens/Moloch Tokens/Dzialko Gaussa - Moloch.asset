@@ -13,11 +13,16 @@ MonoBehaviour:
   m_Name: Dzialko Gaussa - Moloch
   m_EditorClassIdentifier: 
   army: Moloch
-  sprite: {fileID: 21300000, guid: ce6f3674cb71a89409b308a5d999ad2d, type: 3}
-  tokenName: 
+  sprite: {fileID: 21300000, guid: 7ed9cd6310f45374497040a28fcc0e7d, type: 3}
+  tokenName: "Dzia\u0142ko Gaussa"
   tokenType: 0
-  health: 1
-  initiatives: 
-  directionFeatures: []
+  health: 2
+  initiatives: 01000000
+  directionFeatures:
+  - direction: 4
+    attacks:
+    - attackPower: 1
+      isRanged: 1
+    abilities: 
   tokenFeatures: []
   moduleEffects: []

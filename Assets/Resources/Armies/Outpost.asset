@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Outpost
   m_EditorClassIdentifier: 
   allTokens:
+  - {fileID: 11400000, guid: 24a16373d9f674d4482b8fd241d30b87, type: 2}
   - {fileID: 11400000, guid: e0fde14f32ac6fd429c074f8a7d1fd1c, type: 2}
   - {fileID: 11400000, guid: e0fde14f32ac6fd429c074f8a7d1fd1c, type: 2}
   - {fileID: 11400000, guid: e0fde14f32ac6fd429c074f8a7d1fd1c, type: 2}
@@ -27,7 +28,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5d088a28ba542f94f9ab5cb7cbf2f3ec, type: 2}
   - {fileID: 11400000, guid: 5d088a28ba542f94f9ab5cb7cbf2f3ec, type: 2}
   - {fileID: 11400000, guid: 04ca7bea4795b2f458655d63dadb3ebd, type: 2}
-  - {fileID: 11400000, guid: 24a16373d9f674d4482b8fd241d30b87, type: 2}
   - {fileID: 11400000, guid: d481cb1cda19d7e43b9e22cde3c3bb06, type: 2}
   - {fileID: 11400000, guid: d481cb1cda19d7e43b9e22cde3c3bb06, type: 2}
   - {fileID: 11400000, guid: d481cb1cda19d7e43b9e22cde3c3bb06, type: 2}
@@ -40,3 +40,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3e58453c68d4b6745a0f4aa5c7e7231e, type: 2}
   - {fileID: 11400000, guid: 3e58453c68d4b6745a0f4aa5c7e7231e, type: 2}
   - {fileID: 11400000, guid: 2e535796b3bf8004a8f36ad0f4f01b40, type: 2}
+  - {fileID: 11400000, guid: 7dac0b643dad1704493c979f5d2002ce, type: 2}
+  - {fileID: 11400000, guid: 58e7cdb1df150f744ad010f29b397d05, type: 2}
+  - {fileID: 11400000, guid: 8c7439b42e9c446499e1eff55d4dfef1, type: 2}
+  - {fileID: 11400000, guid: 8c7439b42e9c446499e1eff55d4dfef1, type: 2}
+  - {fileID: 11400000, guid: 2d3539556c591f7438eed3ab3bc863d3, type: 2}
+  - {fileID: 11400000, guid: dba15c0ec1bb0b34eb53cc4a7396b5e1, type: 2}
+  - {fileID: 11400000, guid: bb7f2a53392547f40ad5d210e961452a, type: 2}
+  - {fileID: 11400000, guid: bb7f2a53392547f40ad5d210e961452a, type: 2}

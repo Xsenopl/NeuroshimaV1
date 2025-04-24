@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   army: Moloch
   sprite: {fileID: 21300000, guid: f0d244cfd06def14f825e5227e3cf195, type: 3}
-  tokenName: 
-  tokenType: 0
+  tokenName: Bomba
+  tokenType: 3
   health: 1
   initiatives: 
   directionFeatures: []
-  tokenFeatures: []
+  tokenFeatures:
+  - feature: 5
+    quantity: 0
   moduleEffects: []

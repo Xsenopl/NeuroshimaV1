@@ -13,11 +13,15 @@ MonoBehaviour:
   m_Name: Medyk - Moloch
   m_EditorClassIdentifier: 
   army: Moloch
-  sprite: {fileID: 21300000, guid: ce6f3674cb71a89409b308a5d999ad2d, type: 3}
-  tokenName: 
-  tokenType: 0
+  sprite: {fileID: 21300000, guid: 03f10e71c1e536a4f93c4633ba6ccf68, type: 3}
+  tokenName: Medyk Molocha
+  tokenType: 1
   health: 1
   initiatives: 
   directionFeatures: []
   tokenFeatures: []
-  moduleEffects: []
+  moduleEffects:
+  - effectType: 2
+    value: 1
+    directions: 000000000200000004000000
+    enemyTarger: 0

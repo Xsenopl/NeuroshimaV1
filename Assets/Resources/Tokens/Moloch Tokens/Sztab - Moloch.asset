@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   army: Moloch
   sprite: {fileID: 21300000, guid: ce6f3674cb71a89409b308a5d999ad2d, type: 3}
-  tokenName: Sztab Moloch
+  tokenName: Sztab Molocha
   tokenType: 2
   health: 20
   initiatives: 00000000

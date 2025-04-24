@@ -12,12 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2628419a42aa52e4da46a1db590abd13, type: 3}
   m_Name: Siecarz - Hegemonia
   m_EditorClassIdentifier: 
-  army: 
+  army: Hegemonia
   sprite: {fileID: 21300000, guid: b48d5083bb59b22418846448cf4e89d1, type: 3}
-  tokenName: 
+  tokenName: Sieciarz Hegemonii
   tokenType: 0
-  health: 0
+  health: 1
   initiatives: 
-  directionFeatures: []
+  directionFeatures:
+  - direction: 1
+    attacks: []
+    abilities: 01000000
   tokenFeatures: []
   moduleEffects: []
