@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using Unity.VisualScripting.Antlr3.Runtime;
+//using System.Drawing;
 
 public class TokenSlotManager : MonoBehaviour
 {
@@ -12,7 +13,6 @@ public class TokenSlotManager : MonoBehaviour
     public GameObject player2SlotsPanel;
     public List<Image> player1Slots;  // Sloty UI dla Gracza 1
     public List<Image> player2Slots;  // Sloty UI dla Gracza 2
-    public Button endTurnButton;
     public Button undoButton;
     public GameObject trashSlotImage; // Obrazek potwierdzaj¹cy odrzucenie
     public StatsManager statsManager;
@@ -26,6 +26,7 @@ public class TokenSlotManager : MonoBehaviour
     [SerializeField] private TokenData selectedToken = null; // Aktualnie wybrany ¿eton 
     [SerializeField]
     private int turnCounter = 1;  // Licznik tur
+    private bool lastDraw = false;
 
     private void Awake()
     {
@@ -41,9 +42,7 @@ public class TokenSlotManager : MonoBehaviour
 
     private void Start()
     {
-        undoButton.onClick.AddListener(() => boardManager.UndoLastAction());
-        endTurnButton.onClick.AddListener(EndTurn);
-
+        //undoButton.onClick.AddListener(() => boardManager.UndoLastAction());
     }
 
     // Inicjalizacja puli ¿etonów z TokenDatabase
@@ -74,6 +73,8 @@ public class TokenSlotManager : MonoBehaviour
         DrawHeadquarter(1);
     }
 
+    public int GetTurnCounter() { return turnCounter; }
+    public bool GetLastDraw() {  return lastDraw; }
     public List<TokenData> GetPlayer1Pool() { return new List<TokenData>(player1Pool); }
     public List<TokenData> GetPlayer2Pool() { return new List<TokenData>(player2Pool); }
     public bool HasTokensLeftToDiscard()
@@ -92,19 +93,52 @@ public class TokenSlotManager : MonoBehaviour
     // Czyœci sloty do domyœlnego wygl¹du
     public void ClearSlots()
     {
-        foreach (var slot in player1Slots) slot.sprite = null;
-        foreach (var slot in player2Slots) slot.sprite = null;
+        //foreach (var slot in player1Slots) slot.sprite = null;
+        //foreach (var slot in player1Slots) slot.sprite = null;
+        foreach (var slot in player1Slots) { 
+            slot.sprite = null; 
+            Color c = slot.color;
+            c.a = 0f;
+            slot.color = c;
+        }
+        foreach (var slot in player2Slots) {
+            slot.sprite = null;
+            Color c = slot.color;
+            c.a = 0f;
+            slot.color = c;
+        }
+    }
+
+    public void DrawTokensMediator(int player)
+    {
+        if (turnCounter > 4) { DrawTokens(3, player); }
+        else if (turnCounter == 1)
+        {
+            DrawHeadquarter(1);
+        }
+        else if (turnCounter == 2)
+        {
+            DrawHeadquarter(2);
+        }
+        else if (turnCounter == 3)
+        {
+            DrawTokens(1, player);
+        }
+        else if (turnCounter == 4)
+        {
+            DrawTokens(2, player);
+        }
     }
 
     // Losowanie ¿etonów dla danego gracza
-    private void DrawTokens(int count)
+    private void DrawTokens(int count, int player)
     {
-        List<TokenData> pool = (boardManager.CurrentPlayer == 1) ? player1Pool : player2Pool;
-        List<Image> slots = (boardManager.CurrentPlayer == 1) ? player1Slots : player2Slots;
+        List<TokenData> pool = (player == 1) ? player1Pool : player2Pool;
+        List<Image> slots = (player == 1) ? player1Slots : player2Slots;
 
         if (pool.Count == 0)
         {
-            Debug.Log($"Gracz {boardManager.CurrentPlayer} nie ma wiêcej ¿etonów!");
+            Debug.Log($"Gracz {player} nie ma wiêcej ¿etonów!");
             return;
         }
 
@@ -113,7 +147,7 @@ public class TokenSlotManager : MonoBehaviour
 
         if (tokensToDraw == 0)
         {
-            Debug.Log($"Gracz {boardManager.CurrentPlayer} ma ju¿ komplet ¿etonów!");
+            Debug.Log($"Gracz {player} ma ju¿ komplet ¿etonów!");
             return;
         }
 
@@ -128,6 +162,7 @@ public class TokenSlotManager : MonoBehaviour
             TokenData drawnToken = pool[randomIndex];
 
             slots[i].sprite = drawnToken.sprite;
+            slots[i].color = new Color(slots[i].color.r, slots[i].color.g, slots[i].color.b, 1f);
             slots[i].gameObject.name = drawnToken.tokenName;
             slots[i].GetComponent<Slot>().assignedToken = drawnToken;
 
@@ -136,6 +171,7 @@ public class TokenSlotManager : MonoBehaviour
         }
 
         Debug.Log($"Gracz {boardManager.CurrentPlayer} wylosowa³ {emptySlots} nowe ¿etony!");
+        if (pool.Count == 0) lastDraw = true;
     }
 
     private void DrawHeadquarter(int player)
@@ -158,6 +194,7 @@ public class TokenSlotManager : MonoBehaviour
         }
 
         freeSlot.sprite = hq.sprite;
+        freeSlot.color = new Color(freeSlot.color.r, freeSlot.color.g, freeSlot.color.b, 1f);
         freeSlot.gameObject.name = hq.tokenName;
         freeSlot.GetComponent<Slot>().assignedToken = hq;
 
@@ -165,39 +202,16 @@ public class TokenSlotManager : MonoBehaviour
         //Debug.Log($"Gracz {player} otrzyma³ sztab: {hq.tokenName}");
     }
 
-    // Obs³uga koñca tury
-    public void EndTurn()
-    {
-        if (HasThreeTokens()) { Debug.Log("Musisz najpierw odrzuciæ jakiœ ¿eton"); return; }
+    public void NextTurn() { turnCounter++; }
+    public int GetCurrentTurn() {  return turnCounter; }
 
-        turnCounter++;
-        boardManager.ChangeCurrentPlayer();
-
-        if (turnCounter >4) { DrawTokens(3); }
-        else if (turnCounter == 1)
-        {
-            DrawHeadquarter(1);
-        }
-        else if (turnCounter == 2)
-        {
-            DrawHeadquarter(2);
-        }
-        else if (turnCounter == 3)
-        {
-            DrawTokens(1);
-        }
-        else if (turnCounter == 4)
-        {
-            DrawTokens(2);
-        }
-    }
 
     private void AssignSlotListeners(List<Image> slots, int player)
     {
         foreach (var slot in slots)
         {
             Slot slotComponent = slot.gameObject.AddComponent<Slot>();
-            slotComponent.SetManager(this, player);
+            slotComponent.SetManager(this);
         }
     }
 
@@ -300,9 +314,9 @@ public class TokenSlotManager : MonoBehaviour
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    public void UpdatePanelInteractivity()
+    public void UpdatePanelInteractivity(int player)
     {
-        bool isPlayer1Turn = (boardManager.CurrentPlayer == 1);
+        bool isPlayer1Turn = (player == 1);
 
         SetPanelInteractivity(player1SlotsPanel, isPlayer1Turn);
         SetPanelInteractivity(player2SlotsPanel, !isPlayer1Turn);
@@ -337,5 +351,6 @@ public class TokenSlotManager : MonoBehaviour
         ClearAllSelections();
         ClearSlots();
         turnCounter = 1;
+        lastDraw = false;
     }
 }

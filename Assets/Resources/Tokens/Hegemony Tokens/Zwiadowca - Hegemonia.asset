@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Zwiadowca - Hegemonia
   m_EditorClassIdentifier: 
   army: 
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 2e4c03db39e8cea46934a0c8e6908903, type: 3}
   tokenName: 
   tokenType: 0
   health: 0

@@ -25,7 +25,8 @@ public class BattleController : MonoBehaviour
         battlePhase = boardManager.GetHighestInitiative();
         MiddleBattle();
 
-        boardManager.ChangeCurrentPlayer();
+        if (GameController.instance != null)
+            GameController.instance.EndTurn();
 
         string json = TokenGridExporter.ExportAttackListAsJson(attackList);
         WebController.RegisterBattle(json);

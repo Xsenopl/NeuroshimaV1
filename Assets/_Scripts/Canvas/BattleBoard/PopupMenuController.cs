@@ -10,12 +10,13 @@ public class PopupMenuController : MonoBehaviour
     public GameObject popupMenu;
     public GameObject blocker;
     public GameObject statsWindow;
+    public GameObject endGamePanel;
 
     public StatsManager statsManager;
     public TokenSlotManager tokenSlotManager;
 
-    private int baseFontSize = 80;
-    private int basePopupMenuPaddingWidth = 560;
+    private int baseFontSize = 45;
+    private int basePopupMenuPaddingWidth = 700;
     private Vector2 referenceResolution = new(1920, 1080);
     
 
@@ -45,12 +46,12 @@ public class PopupMenuController : MonoBehaviour
         blocker.SetActive(true);
         popupMenu.SetActive(true);
     }
-
     public void CloseMenu()
     {
         blocker.SetActive(false);
         popupMenu.SetActive(false);
     }
+    public void HideMenu() { popupMenu.SetActive(false); }
 
     public void OpenStats()
     {
@@ -59,16 +60,26 @@ public class PopupMenuController : MonoBehaviour
 
         statsManager.InitializePools(tokenSlotManager.GetPlayer1Pool(), tokenSlotManager.GetPlayer2Pool());
     }
-
     public void CloseStats()
     {
         statsWindow.SetActive(false);
         popupMenu.SetActive(true);
     }
 
+    public void ShowEndGamePanel(string note = "Koniec gry") 
+    { 
+        blocker.SetActive(true);
+        endGamePanel.GetComponentInChildren<Text>().text = note;
+        endGamePanel.SetActive(true); 
+    }
+    public void HideEndGamePanel() 
+    { 
+        blocker.SetActive(false);
+        endGamePanel.SetActive(false); 
+    }
+
     public void GoToMainMenu()
     {
-        //tokenSlotManager.ClearSlots();
         tokenSlotManager.ResetAll();
         statsManager.ClearGraveyard();
         StartCoroutine(MainMenuAsync());

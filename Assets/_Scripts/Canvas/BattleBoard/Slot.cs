@@ -5,14 +5,12 @@ using UnityEngine.UI;
 
 public class Slot : MonoBehaviour
 {
-    private TokenSlotManager manager;
-    private int playerID;
+    private TokenSlotManager tokenSlotManager;
     public TokenData assignedToken;
 
-    public void SetManager(TokenSlotManager _manager, int _playerID)
+    public void SetManager(TokenSlotManager _manager)
     {
-        manager = _manager;
-        playerID = _playerID;
+        tokenSlotManager = _manager;
         GetComponent<Button>().onClick.AddListener(OnSlotClick);
     }
 
@@ -20,7 +18,9 @@ public class Slot : MonoBehaviour
     public void ClearSlot()
     {
         assignedToken = null;
-        GetComponent<Image>().sprite = null;
+        Image img = GetComponent<Image>();
+        img.sprite = null;
+        img.color = new Color(img.color.r, img.color.g, img.color.b, 0f);
         gameObject.name = "EmptySlot";
     }
 
@@ -28,19 +28,17 @@ public class Slot : MonoBehaviour
     {
         if (assignedToken == null) return;
 
-        manager.ShowTrashConfirmation(this);
+        tokenSlotManager.ShowTrashConfirmation(this);
 
-        if (manager.HasThreeTokens())                     // Jeœli trzeba odrzuciæ ¿eton
-        {
-            //manager.DiscardToken(assignedToken, this);          
+        if (tokenSlotManager.HasThreeTokens())                     // Jeœli trzeba odrzuciæ ¿eton
+        {       
             //Debug.Log($"Odrzucono ¿eton: {assignedToken.tokenName}");
-
             return;
         }
-        else if(manager.HasTokensLeftToDiscard())             // Jeœli mo¿na odrzuciæ ¿eton
+        else if(tokenSlotManager.HasTokensLeftToDiscard())             // Jeœli mo¿na odrzuciæ ¿eton
         { 
             //Debug.Log($"Wybrano ¿eton do zagrania: {assignedToken.tokenName}");
-            manager.SelectToken(assignedToken);
+            tokenSlotManager.SelectToken(assignedToken);
         }
     }
 }

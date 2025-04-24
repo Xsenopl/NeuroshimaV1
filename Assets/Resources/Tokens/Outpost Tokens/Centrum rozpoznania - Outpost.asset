@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Centrum rozpoznania - Outpost
   m_EditorClassIdentifier: 
   army: Outpost
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 1e6153f24372b5347ae5ccb5d5df6c2b, type: 3}
   tokenName: Centrum Rozpoznania
   tokenType: 1
   health: 1

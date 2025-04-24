@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Uniwersalny zolnierz - Hegemonia
   m_EditorClassIdentifier: 
   army: 
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 80a3e1046f28903449a24ff86ed6aa7a, type: 3}
   tokenName: 
   tokenType: 0
   health: 0

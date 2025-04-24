@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Medyk - Outpost
   m_EditorClassIdentifier: 
   army: Outpost
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 3cf294791942ea5408cd5d8f25e08363, type: 3}
   tokenName: Medyk Outpost
   tokenType: 1
   health: 1
@@ -21,7 +21,7 @@ MonoBehaviour:
   directionFeatures: []
   tokenFeatures: []
   moduleEffects:
-  - effectType: 7
+  - effectType: 2
     value: 1
     directions: 000000000100000005000000
     enemyTarger: 0

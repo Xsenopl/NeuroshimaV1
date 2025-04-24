@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Oficer - Outpost
   m_EditorClassIdentifier: 
   army: Outpost
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 4a398cad1e0ee8a4e888d6b2423f46d0, type: 3}
   tokenName: Oficer Outpost
   tokenType: 1
   health: 1

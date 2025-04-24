@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Super-Oficer - Borgo
   m_EditorClassIdentifier: 
   army: Borgo
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 8a3a9ab2f80b1544e9c2cf75e4a2c6dc, type: 3}
   tokenName: Super Oficer Borgo
   tokenType: 1
   health: 2

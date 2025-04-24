@@ -13,8 +13,13 @@ MonoBehaviour:
   m_Name: Hegemonia
   m_EditorClassIdentifier: 
   allTokens:
-  - {fileID: 11400000, guid: 641300b15332b304ab415a4ff7a8f431, type: 2}
+  - {fileID: 11400000, guid: 7db53a39dcade7c4383d12ab21457533, type: 2}
   - {fileID: 11400000, guid: 4350944ac689d6347a79703a4d0c32fc, type: 2}
   - {fileID: 11400000, guid: 4350944ac689d6347a79703a4d0c32fc, type: 2}
-  - {fileID: 11400000, guid: 4350944ac689d6347a79703a4d0c32fc, type: 2}
-  - {fileID: 11400000, guid: 4350944ac689d6347a79703a4d0c32fc, type: 2}
+  - {fileID: 11400000, guid: 296fdecd8af4f264aa857791370d072b, type: 2}
+  - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
+  - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
+  - {fileID: 11400000, guid: c5863440a0821ef4292f3871aab5da59, type: 2}
+  - {fileID: 11400000, guid: 9523cf32eb4a90749ba00552d13af683, type: 2}
+  - {fileID: 11400000, guid: 9523cf32eb4a90749ba00552d13af683, type: 2}
+  - {fileID: 11400000, guid: 9523cf32eb4a90749ba00552d13af683, type: 2}

@@ -39,6 +39,8 @@ public class BoardManager : MonoBehaviour
     private Stack<ActionData> actionStack = new Stack<ActionData>();
     private bool isUndoing = false; // true - akcja bez cofania, false - mo¿na
 
+    private GameController gc;
+
     private static readonly Vector2Int[] evenRowOffsets = {
         new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 1),
         new Vector2Int(-1, 0), new Vector2Int(-1, -1), new Vector2Int(0, -1)
@@ -51,7 +53,7 @@ public class BoardManager : MonoBehaviour
 
     private void Start()
     {
-        GameController gc = GameController.instance;
+        gc = GameController.instance;
         
         InitFromGController(gc);
         
@@ -69,7 +71,7 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public void ChangeCurrentPlayer() { CurrentPlayer = _currentPlayer == 1 ? 2 : 1; }
+    public int ChangeCurrentPlayer() { return CurrentPlayer = _currentPlayer == 1 ? 2 : 1; }
 
     private void InitFromGController(GameController gc)
     {
@@ -333,6 +335,7 @@ public class BoardManager : MonoBehaviour
             if (emptySlot != null)
             {
                 emptySlot.sprite = lastAction.tokenData.sprite;
+                emptySlot.color = new Color(emptySlot.color.r, emptySlot.color.g, emptySlot.color.b, 1f);
                 emptySlot.gameObject.name = lastAction.tokenData.tokenName;
                 emptySlot.GetComponent<Slot>().assignedToken = lastAction.tokenData;
 
@@ -408,6 +411,25 @@ public class BoardManager : MonoBehaviour
         return CurrentPlayer;
     }
 
+    public (int player1HP, int player2HP) GetHQHealth()
+    {
+        int hpP1 = 0, hpP2 = 0;
+
+        foreach (var token in tokenGrid.Values)
+        {
+            if (token.tokenData.tokenType != TokenType.Headquarter)
+                continue;
+
+            if (token.tokenData.army == player1Army)
+                hpP1 = token.currentHealth;
+
+            else if (token.tokenData.army == player2Army)
+                hpP2 = token.currentHealth;
+        }
+
+        return (hpP1, hpP2);
+    }
+
     public int GetHighestInitiative()
     {
         int maxInitiative = 0;
@@ -465,8 +487,6 @@ public class BoardManager : MonoBehaviour
         {
             token.ResetMoves();
         }
-        //tokenManager.DrawTokens();
-        tokenManager.UpdatePanelInteractivity();
         actionStack.Clear();
     }
 

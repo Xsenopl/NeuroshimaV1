@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Boss - Hegemonia
   m_EditorClassIdentifier: 
   army: 
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: dd83608de3e943547a6a1aa2e755d52a, type: 3}
   tokenName: 
   tokenType: 0
   health: 0

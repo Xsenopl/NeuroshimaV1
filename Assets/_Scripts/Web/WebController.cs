@@ -13,6 +13,26 @@ public static class WebController
     public static readonly string SERVER_URL = "http://localhost:80/NeuroshimaHex";
 
 
+    public static async void RegisterUser(string email, string username, string password)
+    {
+
+        bool temp = await SendPostManager.RegisterUser(email, username, password);
+        if (temp)
+            Debug.Log("Pomyœlnie zarejestrowano u¿ytkownika");
+        else Debug.LogWarning("Œle zarejestrowano u¿ytkownika.");
+    }
+    public static async Task<string> LoginUser(string email, string password)
+    {
+        (bool success, string username) = await SendPostManager.LoginUser(email, password);
+
+        if (success && !username.StartsWith("ERROR"))
+            return username;
+            
+        else
+            return null;
+
+    }
+
     public static async void RegisterDuel(string army1, string army2)
     {
         await SendPostManager.RegisterDuel(army1, army2);
@@ -29,7 +49,13 @@ public static class WebController
         await SendPostManager.RegisterBattle(battleEvents);
     }
 
-    
+    public static async void SetDuelScore(int score1, int score2)
+    {
+        string s1 = score1.ToString();
+        string s2 = score2.ToString();
+
+        await SendPostManager.SetDuelScore(s1, s2);
+    }
 
 
 
