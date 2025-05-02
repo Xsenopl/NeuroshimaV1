@@ -26,7 +26,7 @@ public class ArmySelectionManager : MonoBehaviour
         bool isEmptyArmyName = string.IsNullOrEmpty(armyName);
         string otherArmy = activePlayer == Player.Player1 ? mainMenuController.player2Army : mainMenuController.player1Army;
 
-        Debug.Log($"Ta armia: {armyName} i inna armia {otherArmy}");
+        //Debug.Log($"Gracz1 armia: {armyName}, Gracz2 armia: {otherArmy}");
 
         if (otherArmy == armyName && !isEmptyArmyName)
         {

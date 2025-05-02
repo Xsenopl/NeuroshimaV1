@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.U2D;
 
 public class Token : MonoBehaviour
 {
@@ -136,7 +135,7 @@ public class Token : MonoBehaviour
             bool isOccupied = tokenGrid.ContainsKey(neighborPos);
             neighborStatus[neighborPos] = isOccupied;
         }
-        Debug.Log($"{tokenData.name} s¹siadów: {neighborStatus.Values.Count(t =>t)}");
+        //Debug.Log($"{tokenData.name} s¹siadów: {neighborStatus.Values.Count(t =>t)}");
     }
 
     void Update()
@@ -416,12 +415,6 @@ public class Token : MonoBehaviour
     {
         throw new NotImplementedException();
     }
-
-    //private void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.blue;
-    //    Gizmos.DrawWireSphere(transform.position, neighborCheckRadius);
-    //}
 
     public List<Vector2Int> GetNeighborPositions()
     {

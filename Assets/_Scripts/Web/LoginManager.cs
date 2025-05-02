@@ -42,7 +42,7 @@ public class LoginManager : MonoBehaviour
         if(string.IsNullOrWhiteSpace(regPassword.text) || regPassword.text.Length < 5) { regWarningText.text = "Podaj w³aœciwe has³o"; return; }
 
         WebController.RegisterUser(regEmail.text, regUsername.text, regPassword.text);
-        userName.text = $"Pomyœlnie zarejestrowano u¿ytkownika {regUsername.text}";
+        //userName.text = $"Pomyœlnie zarejestrowano u¿ytkownika {regUsername.text}";
     }
 
     public async void TryToLoginUser()

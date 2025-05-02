@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
-using Unity.VisualScripting.Antlr3.Runtime;
-//using System.Drawing;
 
 public class TokenSlotManager : MonoBehaviour
 {

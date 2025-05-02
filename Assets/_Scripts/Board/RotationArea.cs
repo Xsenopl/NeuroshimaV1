@@ -16,7 +16,7 @@ public class RotationArea : MonoBehaviour
         if (_token != null)
         {
             _token.StartRotation(Input.mousePosition);
-            Debug.Log("Klikniêto pole do obracania.");
+            //Debug.Log("Klikniêto pole do obracania.");
         }
     }
 
@@ -25,7 +25,7 @@ public class RotationArea : MonoBehaviour
         if (_token != null)
         {
             _token.StopRotation();
-            Debug.Log("Przestano obracaæ ¿eton.");
+            //Debug.Log("Przestano obracaæ ¿eton.");
         }
     }
 }

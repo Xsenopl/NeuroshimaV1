@@ -2,25 +2,6 @@
 require_once 'db_connect.php';
 require_once 'getters.php';
 
-function insertBattleEvent($mysqli, $id_pojedynku, $nr_bitwy){
-	echo $nr_bitwy;
-	$battlePhase = $_POST['battlePhase'] ?? null;
-    $attackerX = $_POST['attackerX'] ?? null;
-    $attackerY = $_POST['attackerY'] ?? null;
-    $targetX = $_POST['targetX'] ?? null;
-    $targetY = $_POST['targetY'] ?? null;
-
-    //if ($battlePhase === null || $attackerX === null || $attackerY === null || $targetX === null || $targetY === null) {
-    //    http_response_code(400);
-    //    die("Brakuje danych bitwy (battlePhase, attackerX/Y, targetX/Y)");
-    //}
-
-    $stmt = $mysqli->prepare("INSERT INTO bitwy (id_pojedynku, nr_bitwy, nr_inicjatywy, atacker_x_pos, atacker_y_pos, target_x_pos, target_y_pos) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iiiiiii", $id_pojedynku, $nr_bitwy, $battlePhase, $attackerX, $attackerY, $targetX, $targetY);
-    $stmt->execute();
-    $stmt->close();
-}
-
 function getBattleAttacksFromPost() {
     $json = $_POST['battle'] ?? null;
 
