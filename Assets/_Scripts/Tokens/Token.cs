@@ -248,81 +248,6 @@ public class Token : MonoBehaviour
     }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-/* Stara wersja rotowania ¿etonem
-        public void StartRotationPREW(Vector3 mousePosition)
-        {
-            if (!isPlaced)
-            {
-                isBeingRotated = true;
-                initialMousePosition = mousePosition;
-            }
-        }
-
-        public void StopRotationPREW()
-        {
-            //isBeingRotated = false;
-
-            //// Zaokr¹glenie k¹ta obrotu do najbli¿szej wielokrotnoœci 60 stopni
-            //float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f;
-
-            //// Ustawienie obrotu na zaokr¹glony k¹t
-            //transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
-            //currentRotation = roundedAngle;
-
-            //Debug.Log($"Obracanie zatrzymane. Aktualny k¹t: {currentRotation}");
-
-            isBeingRotated = false;
-            currentRotation = transform.rotation.eulerAngles.z; // Zapamiêtanie aktualnego k¹ta
-            float roundedAngle = Mathf.Round(currentRotation / 60f) * 60f; // Zaokr¹glenie do 60 stopni
-            transform.rotation = Quaternion.Euler(0, 0, roundedAngle);
-
-            Debug.Log($"Obracanie zatrzymane. Zaokr¹glony k¹t: {roundedAngle}");
-        }
-
-        void RotateTokenWithMousePREW()
-        {
-            //Vector3 mouseDelta = Input.mousePosition - initialMousePosition;
-            //float angle = Mathf.Atan2(mouseDelta.y, mouseDelta.x) * Mathf.Rad2Deg;
-            //transform.rotation = Quaternion.Euler(0, 0, angle);
-            //currentRotation = angle;
-
-            Vector3 currentMousePosition = Input.mousePosition;
-
-            // Obliczenie k¹ta pocz¹tkowego i aktualnego wzglêdem pozycji ¿etonu
-            Vector3 tokenScreenPosition = Camera.main.WorldToScreenPoint(transform.position);
-            float initialAngle = Mathf.Atan2(initialMousePosition.y - tokenScreenPosition.y, initialMousePosition.x - tokenScreenPosition.x) * Mathf.Rad2Deg;
-            float currentAngle = Mathf.Atan2(currentMousePosition.y - tokenScreenPosition.y, currentMousePosition.x - tokenScreenPosition.x) * Mathf.Rad2Deg;
-
-            // Obliczenie ró¿nicy k¹ta
-            float angleDelta = Mathf.DeltaAngle(initialAngle, currentAngle);
-
-            // Aktualizacja k¹ta
-            transform.rotation = Quaternion.Euler(0, 0, currentRotation + angleDelta);
-        }
-
-        void OnMouseDownPREV()
-        {
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
-            if (hit.collider != null && hit.collider.gameObject == gameObject)
-            {
-                //if (isPlaced)
-                //{
-                //    Debug.Log("¯eton zatwierdzony.");
-                //    Destroy(rotationArea);  // Usuniêcie pola do obracania
-                //}
-                //else
-                //{
-                //    isPlaced = true;
-                //    Debug.Log("¯eton gotowy do zatwierdzenia. Kliknij ponownie, aby umieœciæ go na sta³e.");
-                //}
-                this.isPlaced = true;
-                Debug.Log("¯eton zatwierdzony.");
-                Destroy(rotationArea);  // Usuniêcie pola do obracania
-            }
-        }
-    */
-
     public AttackDirection GetRotatedDirection(AttackDirection baseDirection)
     {
         AttackDirection[] directions = {
@@ -405,10 +330,6 @@ public class Token : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        if (currentHealth <= 0)
-        {
-            // Debug.Log($"{tokenData.tokenName} ma 0  hp.");
-        }
     }
 
     public static explicit operator Token(GameObject v)
@@ -632,6 +553,42 @@ public class Token : MonoBehaviour
     {
         int index = currentFeatures.FindIndex(f => f.feature == TokenFeatures.Moving);
 
+        if (index < 0) return;
+
+        int newQuantity = currentFeatures[index].quantity - amount;
+
+        // Sprawdza czy ¿eton ma cechê Moving w TokenData
+        bool hasNativeMovement = tokenData.tokenFeatures != null &&
+                                 tokenData.tokenFeatures.Any(f => f.feature == TokenFeatures.Moving);
+
+        if (hasNativeMovement)
+        {
+            // Dla jednostek, które maj¹ cechê Moving domyœlnie
+            currentFeatures[index] = new Features
+            {
+                feature = TokenFeatures.Moving,
+                quantity = Mathf.Max(newQuantity, 0)
+            };
+        }
+        else
+        {
+            // Dla jednostek, które zyska³y cechê Moving tymczasowo
+            if (newQuantity <= 0)
+                currentFeatures.RemoveAt(index);
+            else
+                currentFeatures[index] = new Features
+                {
+                    feature = TokenFeatures.Moving,
+                    quantity = newQuantity
+                };
+        }
+    }
+
+    /*
+    public void RemoveExtraMovementPREV(int amount)
+    {
+        int index = currentFeatures.FindIndex(f => f.feature == TokenFeatures.Moving);
+
         if (index >= 0)
         {
             int baseMovement = tokenData.tokenFeatures
@@ -657,7 +614,7 @@ public class Token : MonoBehaviour
                 };
             }
         }
-    }
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    }*/
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 }

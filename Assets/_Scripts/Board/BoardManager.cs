@@ -163,7 +163,6 @@ public class BoardManager : MonoBehaviour
         {
             newToken.transform.rotation = Quaternion.Euler(0, 0, previousRotation.Value);
             newToken.currentRotation = previousRotation.Value;
-            Debug.Log($"Rotacja 1 {newToken.transform.rotation} i current to: {newToken.currentRotation}");
             newToken.ConfirmPlacement(); // ¯eton jest od razu zatwierdzony
         }
         else
@@ -190,13 +189,13 @@ public class BoardManager : MonoBehaviour
         UpdateNeighbors((Vector2Int)hexPosition); // Aktualizacja s¹siedztwa u s¹siadów
 
         tokenManager.trashSlotImage.SetActive(false);
+        
+        if(tokenGrid.Count >= 19) { Battle(); }
     }
 
     public void PlaceTokenMove(Vector3Int hexPosition, Token existingToken)
     {
         Vector3 spawnPosition = HexToWorld(hexPosition);
-
-        Debug.Log(spawnPosition);
 
         // Przenosi istniej¹cy obiekt ¿etonu (zamiast tworzyæ nowy)
         existingToken.transform.position = spawnPosition;
@@ -212,8 +211,6 @@ public class BoardManager : MonoBehaviour
 
         // Aktualizuje s¹siedztwo po ruchu
         UpdateNeighbors(hexCoords);
-
-        Debug.Log($"¯eton {existingToken.tokenData.tokenName} zosta³ przeniesiony na {hexPosition} bez resetowania jego wartoœci.");
     }
 
     public void RemoveToken(Token token)
@@ -320,7 +317,6 @@ public class BoardManager : MonoBehaviour
             // Dodanie efektu modu³u, dla tej jednostki 
             List<Vector2Int> activeNeighbors = newToken.GetNeighborPositions();
             SetModuleEffectsForThis(newToken.hexCoords, activeNeighbors, true);
-            Debug.Log($"Rotacja 2 {newToken.transform.rotation}");
 
             isUndoing = false;
         }
@@ -610,12 +606,8 @@ public class BoardManager : MonoBehaviour
         switch (feature)
         {
             case TokenFeatures.Battle:
-                    //Debug.Log("Akcja - bitwa!");
-                    string jsonBefore = TokenGridExporter.ExportTokenGridAsJson(tokenGrid);
-                    WebController.RegisterBoard(jsonBefore, true);
-                    battleController.StartBattle();
-                    string jsonAfter = TokenGridExporter.ExportTokenGridAsJson(tokenGrid);
-                    WebController.RegisterBoard(jsonAfter, false);
+                Battle();
+                    
                 return true;
 
             case TokenFeatures.Moving:
@@ -642,6 +634,16 @@ public class BoardManager : MonoBehaviour
                 Debug.LogWarning($"Efekt {feature} nie jest jeszcze obs³ugiwany.");
                 return false;
         }
+    }
+
+    public void Battle()
+    {
+        string jsonBefore = TokenGridExporter.ExportTokenGridAsJson(tokenGrid);
+        WebController.RegisterBoard(jsonBefore, true);
+        int initiative = GetHighestInitiative();
+        battleController.StartBattle(initiative);
+        string jsonAfter = TokenGridExporter.ExportTokenGridAsJson(tokenGrid);
+        WebController.RegisterBoard(jsonAfter, false);
     }
 
     public bool Sniper(Token target, int dmg = 1)

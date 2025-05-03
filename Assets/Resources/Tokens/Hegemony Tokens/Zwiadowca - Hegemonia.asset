@@ -21,7 +21,7 @@ MonoBehaviour:
   directionFeatures: []
   tokenFeatures: []
   moduleEffects:
-  - effectType: 4
+  - effectType: 3
     value: 1
     directions: 000000000100000005000000
     enemyTarger: 0

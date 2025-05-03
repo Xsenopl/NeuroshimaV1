@@ -298,7 +298,6 @@ public class TokenSlotManager : MonoBehaviour
         if (selectedSlot != null && selectedSlot.GetComponent<Slot>() != null)
         {
             selectedSlot.GetComponent<Slot>().ClearSlot();
-            Debug.Log("To siê wywo³uje");
         }
         ClearAllSelections();
         trashSlotImage.SetActive(false);

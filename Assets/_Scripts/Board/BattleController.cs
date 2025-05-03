@@ -6,23 +6,19 @@ using System.Linq;
 
 public class BattleController : MonoBehaviour
 {
-    public Button battleButton;
     public BoardManager boardManager;
 
     private int battlePhase; // Aktualna faza bitwy
     private List<(int phase, int ax, int ay, int tx, int ty)> attackList = new List<(int, int, int, int, int)>();
 
     private void Start()
-    {
-        if (battleButton == null)   return;
-        battleButton.onClick.AddListener(StartBattle);
-    }
+    {    }
 
-    public void StartBattle()
+    public void StartBattle(int highestInitiative)
     {
         Debug.Log("Rozpoczynam bitwê!");
 
-        battlePhase = boardManager.GetHighestInitiative();
+        battlePhase = highestInitiative;
         MiddleBattle();
 
         if (GameController.instance != null)
