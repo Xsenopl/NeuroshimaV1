@@ -71,7 +71,7 @@ public class BoardManager : MonoBehaviour
 
     public int ChangeCurrentPlayer() { return CurrentPlayer = _currentPlayer == 1 ? 2 : 1; }
 
-    private void InitFromGController(GameController gc)
+    public void InitFromGController(GameController gc)
     {
         tokenManager = gc.GetComponentInChildren<TokenSlotManager>(true);
         panelConfirmationController = gc.GUI.GetComponentInChildren<PanelConfirmationController>(true);

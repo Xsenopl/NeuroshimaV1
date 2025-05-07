@@ -23,6 +23,8 @@ public class ArmySelectionManager : MonoBehaviour
     {
         if (activePlayer == Player.None) return;
 
+        mainMenuController.SetArmyImage(activePlayer == Player.Player1 ? 1 : 2, armySprite, armyName);
+
         bool isEmptyArmyName = string.IsNullOrEmpty(armyName);
         string otherArmy = activePlayer == Player.Player1 ? mainMenuController.player2Army : mainMenuController.player1Army;
 

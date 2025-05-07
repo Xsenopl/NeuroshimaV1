@@ -5,6 +5,11 @@ using UnityEngine.UI;
 
 public class StatsManager : MonoBehaviour
 {
+    public Text player1Army;
+    public Text player2Army;
+    public Image player1ArmyImage;
+    public Image player2ArmyImage;
+
     public GameObject tokenImagePrefab;
     public Transform poolContentP1; // Content w PoolScrollSection dla Gracza 1
     public Transform poolContentP2;
@@ -16,6 +21,15 @@ public class StatsManager : MonoBehaviour
     private Dictionary<string, int> player2Pool = new Dictionary<string, int>(); // Pula Gracza 2
     private Dictionary<string, int> player1Graveyard = new Dictionary<string, int>(); // Cmentarz Gracza 1
     private Dictionary<string, int> player2Graveyard = new Dictionary<string, int>(); // Cmentarz Gracza 2
+
+    public void InitializeArmies(Sprite armyImgP1, Sprite armyImgP2, string armyNameP1, string armyNameP2)
+    {
+        player1Army.text = armyNameP1;
+        player2Army.text = armyNameP2;
+
+        player1ArmyImage.sprite = armyImgP1;
+        player2ArmyImage.sprite = armyImgP2;
+    }
 
     public void InitializePools(List<TokenData> p1Pool, List<TokenData> p2Pool)
     {

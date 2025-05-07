@@ -2,83 +2,91 @@ using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-public class BattleControllerTests
+public class BattleControllerTests      // Klasa potrzebuje specjalnie stworzonej sceny pod testy
 {
-    private GameObject battleObject;
     private BattleController battleController;
+    private BoardManager boardManager;
 
-    [SetUp]
-    public void Setup()
+    [UnitySetUp]
+    public IEnumerator LoadScene()
     {
-        battleObject = new GameObject("BattleController");
-        battleController = battleObject.AddComponent<BattleController>();
-
-        var boardObject = new GameObject("BoardManager");
-        var boardManager = boardObject.AddComponent<BoardManager>();
-        battleController.boardManager = boardManager;
-
-        // Ustawienie wymaganych referencji GameController.instance
-        GameObject gameControllerGO = new GameObject("GameController");
-        gameControllerGO.AddComponent<GameController>();
-        GameController.instance = gameControllerGO.GetComponent<GameController>();
-    }
-
-    [TearDown]
-    public void Teardown()
-    {
-        Object.DestroyImmediate(battleObject);
-        Object.DestroyImmediate(battleController.boardManager.gameObject);
-        Object.DestroyImmediate(GameController.instance.gameObject);
-    }
-
-    [UnityTest]
-    public IEnumerator StartBattle_WithNoTokens_CompletesWithoutError()
-    {
-        battleController.StartBattle(0);
+        SceneManager.LoadScene("TestBoardScene");
         yield return null;
-        Assert.Pass("Bitwa zakoñczona bez b³êdów dla pustej planszy.");
+
+        yield return new WaitForSeconds(0.1f);
+
+        // Znalezienie obiektów w scenie
+        battleController = Object.FindObjectOfType<BattleController>();
+        boardManager = Object.FindObjectOfType<BoardManager>();
     }
 
     [UnityTest]
-    public IEnumerator StartBattle_InitializesAndClearsAttackLog()
+    public IEnumerator StartBattle_CleanBoardRun()
     {
-        // Przygotowanie sztucznego ataku
-        var fakeToken = new GameObject("Attacker").AddComponent<Token>();
-        fakeToken.hexCoords = new Vector2Int(0, 0);
-        fakeToken.tokenData = ScriptableObject.CreateInstance<TokenData>();
-        fakeToken.tokenData.army = "Army1";
-        fakeToken.currentHealth = 5;
-        fakeToken.currentInitiatives = new List<int> { 0 };
-        fakeToken.currentAttackEffects = new List<DirectionalFeatures>();
+        Assert.IsNotNull(battleController, "BattleController nie zosta³ znaleziony na scenie.");
+        Assert.IsNotNull(boardManager, "BoardManager nie zosta³ znaleziony na scenie.");
 
-        battleController.boardManager.tokenGrid = new Dictionary<Vector2Int, Token>
+        // Symulacja bitwy – np. najpierw highestInitiative = 2
+        battleController.StartBattle(2);
+
+        yield return null; // Odczekanie jednej klatki
+
+        Assert.Pass("Bitwa uruchomiona poprawnie na TestBoardScene.");
+    }
+
+    [UnityTest]
+    public IEnumerator DestroyedTokens_AreRemovedAfterBattle()
+    {
+        // Pozycje na planszy
+        Vector2Int targetPos = new Vector2Int(1, 0);
+        Vector2Int attackerPos = new Vector2Int(2, 0);
+
+        // ¯eton atakuj¹cy
+        TokenData attackerData = ScriptableObject.CreateInstance<TokenData>();
+        attackerData.tokenName = "Attacker";
+        attackerData.army = "Army1";
+        attackerData.health = 5;
+        attackerData.initiatives = new List<int> { 0 };
+        attackerData.tokenFeatures = new List<Features>();
+        attackerData.directionFeatures = new List<DirectionalFeatures>
         {
-            [new Vector2Int(0, 0)] = fakeToken
+            new DirectionalFeatures
+            {
+                direction = AttackDirection.Down,
+                attacks = new List<AttackFeatures>
+                {
+                    new AttackFeatures { attackPower = 1, isRanged = false }
+                }
+            }
         };
 
-        // Rozpoczêcie bitwy
+        // ¯eton atakowany
+        TokenData target = ScriptableObject.CreateInstance<TokenData>();
+        target.tokenName = "Target";
+        target.army = "Army2";
+        target.health = 1;
+        target.initiatives = new List<int>();
+        target.tokenFeatures = new List<Features>();
+
+        // Dodaje ¿etony na planszê
+        boardManager.PlaceToken((Vector3Int)targetPos, target);
+        boardManager.PlaceToken((Vector3Int)attackerPos, attackerData);
+
+        yield return new WaitForSeconds(0.1f); // poczekaj na inicjalizacjê
+
+        Assert.IsTrue(boardManager.tokenGrid.ContainsKey(targetPos), "Target nie istnieje.");
+        Assert.IsTrue(boardManager.tokenGrid.ContainsKey(attackerPos), "Attacker nie istnieje.");
+
+        // Bitwa
         battleController.StartBattle(0);
         yield return null;
 
-        Assert.IsTrue(true); // Jeœli nie wyst¹pi wyj¹tek – test przeszed³
+        // Sprawdza, czy ¿eton zosta³ usuniêty
+        bool existsAfterBattle = boardManager.tokenGrid.ContainsKey(targetPos);
+        Assert.IsFalse(existsAfterBattle, "Zabity ¿eton nie zosta³ usuniêty po bitwie.");
     }
+
 }
-
-    //// A Test behaves as an ordinary method
-    //[Test]
-    //public void BattleControllerTestsSimplePasses()
-    //{
-    //    // Use the Assert class to test conditions
-    //}
-
-    //// A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-    //// `yield return null;` to skip a frame.
-    //[UnityTest]
-    //public IEnumerator BattleControllerTestsWithEnumeratorPasses()
-    //{
-    //    // Use the Assert class to test conditions.
-    //    // Use yield to skip a frame.
-    //    yield return null;
-    //}

@@ -19,6 +19,7 @@ public class OnBoardOpened : MonoBehaviour
         GameController.instance.tokenManager.boardManager = GameController.instance.boardManager;
 
         GameController.instance.AssignArmies();
+        GameController.instance.UpdateHqHP(null, null);
 
         //if (GameController.instance.boardManager != null)
         //{

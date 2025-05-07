@@ -11,7 +11,6 @@ public class TokenSlotManager : MonoBehaviour
     public GameObject player2SlotsPanel;
     public List<Image> player1Slots;  // Sloty UI dla Gracza 1
     public List<Image> player2Slots;  // Sloty UI dla Gracza 2
-    public Button undoButton;
     public GameObject trashSlotImage; // Obrazek potwierdzaj¹cy odrzucenie
     public StatsManager statsManager;
 
@@ -40,7 +39,6 @@ public class TokenSlotManager : MonoBehaviour
 
     private void Start()
     {
-        //undoButton.onClick.AddListener(() => boardManager.UndoLastAction());
     }
 
     // Inicjalizacja puli ¿etonów z TokenDatabase
@@ -235,6 +233,11 @@ public class TokenSlotManager : MonoBehaviour
         if (player2Database != null) allTokens.AddRange(player2Database.allTokens);
 
         return allTokens.Find(t => t.tokenName == tokenName);
+    }
+
+    public void SetStatsPanel(Sprite armyImgP1, Sprite armyImgP2, string armyNameP1, string armyNameP2)
+    {
+        statsManager.InitializeArmies(armyImgP1, armyImgP2, armyNameP1, armyNameP2);
     }
 
 //_______________ODRZUCANIE ¯ETONÓW__________________

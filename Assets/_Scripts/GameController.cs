@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,12 +15,15 @@ public class GameController : MonoBehaviour
 
     public Text player1TilesCount;
     public Text player2TilesCount;
+    public Text player1HqHP;
+    public Text player2HqHP;
 
     public string selectedPlayer1Army;
     public string selectedPlayer2Army;
 
     public TokenDatabase player1Database;
     public TokenDatabase player2Database;
+    public Image player1Image;
 
     [SerializeField]
     private string logedUser;
@@ -89,8 +93,23 @@ public class GameController : MonoBehaviour
         tokenManager.UpdatePanelInteractivity(currentPlayer);
         tokenManager.DrawTokensMediator(currentPlayer);
 
+        UpdateHqHP(player1HP, player2HP);
         UpdateTilesCount();
     }
+
+    public void UpdateHqHP(int? hq1, int? hq2)
+    {
+        if (hq1 is null || hq2 is null)
+        {
+            player1HqHP.text = "20";
+            player2HqHP.text = "20";
+        }
+        else
+        {
+            player1HqHP.text = hq1.ToString();
+            player2HqHP.text = hq2.ToString();
+        }
+    } 
 
     public void UpdateTilesCount()
     {
@@ -108,6 +127,11 @@ public class GameController : MonoBehaviour
         int count = currentPlayer == 1 ? tokenManager.GetPlayer1Pool().Count : tokenManager.GetPlayer2Pool().Count;
 
         _ = currentPlayer == 1 ? player1TilesCount.text = count.ToString() : player2TilesCount.text = count.ToString();
+    }
+
+    public void SetStatsPanelArmies(Sprite armyImgP1, Sprite armyImgP2, string armyNameP1, string armyNameP2)
+    {
+        tokenManager.SetStatsPanel(armyImgP1, armyImgP2, armyNameP1, armyNameP2);
     }
 
     public void UndoLastAction()

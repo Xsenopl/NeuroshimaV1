@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenuController : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class MainMenuController : MonoBehaviour
 
     public string player1Army;
     public string player2Army;
+
+    private Sprite player1ArmySprite;
+    private Sprite player2ArmySprite;
 
     private void Start()
     {
@@ -37,6 +41,22 @@ public class MainMenuController : MonoBehaviour
 
     public void ExitGame() { Application.Quit(); }
 
+    public void SetArmyImage(int player, Sprite armyImg, string armyName)
+    {
+        if (player != 1 && player != 2) { return; }
+
+        if (player == 1)
+        {
+            //player1Army = armyName;
+            player1ArmySprite = armyImg;
+        }
+        else
+        {
+            //player2Army = armyName;
+            player2ArmySprite = armyImg;
+        }
+    }
+
     public void CreateNewDuel()
     {
         if (string.IsNullOrEmpty(player1Army) || string.IsNullOrEmpty(player2Army)) return;
@@ -52,8 +72,10 @@ public class MainMenuController : MonoBehaviour
         if (GameController.instance.player2Database == null)
             { Debug.Log($"Armia {player2Army} nie istnieje"); return; }
 
+        GameController.instance.SetStatsPanelArmies(player1ArmySprite, player2ArmySprite, player1Army, player2Army);
+
         StartCoroutine(NewGameAsync());
-    
+
     }
 
     private IEnumerator NewGameAsync()
